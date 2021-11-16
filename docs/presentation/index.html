@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>CloudSim Plus: A Cloud Computing Simulation Framework Pursuing Software Engineering Principles for Improved Modularity, Extensibility and Correctness</title>
+
+		<meta name="description" content="A Cloud Computing Simulation Framework Pursuing Software Engineering Principles for Improved Modularity, Extensibility and Correctness">
+		<meta name="author" content="Manoel C. Silva Filho; Raysa L. Oliveira; Claudio C. Monteiro; Pedro R. M. Inácio; Mário M. Freire">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/league.css" id="theme"> <!-- blood, league-->
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+		<div class="reveal">
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section data-markdown><script type="text/template">
+					# CloudSim Plus
+					https://cloudsimplus.org/docs/presentation/
+					## A Cloud Computing Simulation Framework Pursuing Software Engineering Principles for Improved Modularity, Extensibility and Correctness
+					### [IFIP/IEEE International Symposium on Integrated Network Management, 2017](http://im2017.ieee-im.org)
+					#### [Manoel Campos](http://twitter.com/manoelcampos)¹ ²; [Raysa Oliveira](https://twitter.com/raysaloliveira)²; [Claudio Monteiro](https://www.linkedin.com/in/claudio-monteiro-4637411a)¹; [Pedro Inácio](http://www.di.ubi.pt/~inacio)²; [Mário Freire](http://di.ubi.pt/~mario/)²
+					<small>
+					¹Depto. Informática, [Instituto Federal de Educação do Tocantins](http://www.ifto.edu.br), Brazil<br/>
+					²[Instituto de Telecomunicações](http://www.it.pt) and [Depto. Informática](http://di.ubi.pt), [Universidade da Beira Interior](http://www.ubi.pt), Portugal
+					<div height="40px">
+					###### This presentation is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+					<img src="https://licensebuttons.net/l/by-sa/4.0/88x31.png"/>
+					</div>
+					</small>
+				</script></section>
+
+				<section data-markdown><script type="text/template">
+					## Agenda
+					<img src="images/notepad-117597_640.png" id="logo" />
+
+					- [What is CloudSim Plus?](#/2)
+					- [CloudSim Plus Introduction](#/3)
+					- [Architecture](#/5)
+						- [Modules](#/6)
+						- [Main Packages](#/7)
+					- [Main Exclusive Features](#/8)
+					- [Conclusions and Future Work](#/18)
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## What is CloudSim Plus?
+					##### Java 8 independent CloudSim fork for Cloud Computing simulation
+					##### [https://cloudsimplus.org](https://cloudsimplus.org)
+
+					<!-- .element: class="fragment" --> State-of-the-art cloud computing simulation framework for creationg of 
+					experiments to simulate cloud infrastructure and services, including: 
+
+					- <!-- .element: class="fragment" --> development of algorithms for VM placement and migration; 
+					- <!-- .element: class="fragment" --> VMs and applications scheduling;
+					- <!-- .element: class="fragment" --> computing resources allocation;
+					- <!-- .element: class="fragment" --> modelling of applications/tasks resource utilization;
+					- <!-- .element: class="fragment" --> power consumption models, power-efficient resource allocation;
+					- <!-- .element: class="fragment" --> network traffic modelling and more...
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## CloudSim Plus Introduction
+					<img src="images/amazon-157609_640.png" id="logo" />
+
+					- <!-- .element: class="fragment" --> Highly extensible, completely redesigned and refactored. 
+					- <!-- .element: class="fragment" --> Full-featured: more than 20 [exclusive features](http://cloudsimplus.org/#exclusive-features), and counting...
+					- <!-- .element: class="fragment" --> [Design Patterns](https://en.wikipedia.org/wiki/Software_design_pattern), [SOLID principles](https://en.wikipedia.org/wiki/SOLID_(object-oriented_design%29), [KISS](https://en.wikipedia.org/wiki/KISS_principle), [DRY](https://pt.wikipedia.org/wiki/Don't_repeat_yourself) and Clean Code.
+					- <!-- .element: class="fragment" --> Reduces duplication and redundancy. Way easier to use ([comparison](https://cloudsimplus.org/docs/CloudSim-and-CloudSimPlus-Comparison.html)).
+					- <!-- .element: class="fragment" --> Less 30% code duplication, more 80% test coverage.
+					- <!-- .element: class="fragment" --> Integration tests to ensure accuracy of entire simulation scenarios.
+
+					# Notes
+					Independent CloudSim fork: Java 8, Cloud Computing simulations, Modern.
+					- Intuitive and Easier.
+					- Implementation of complex and more realistic scenarios.
+					- Stat-of-the-art framework.
+					- Easier to maintain.
+					- More accuracy and safety for changes.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## CloudSim Plus Introduction
+					<img src="images/amazon-157609_640.png" id="logo" />
+
+					- <!-- .element: class="fragment" --> [Fully documented: totally reviewed and extended docs](https://cloudsimplus.org/#docs-help). 
+					- <!-- .element: class="fragment" --> [Lots of meaningful examples to get you started](https://github.com/manoelcampos/cloudsim-plus/tree/master/cloudsim-plus-examples).
+					- <!-- .element: class="fragment" --> [+ 20 contributors and counting...](https://github.com/manoelcampos/cloudsim-plus/graphs/contributors)
+					- <!-- .element: class="fragment" --> [Used to build lots of recent and relevant tools](https://cloudsimplus.org/#projects).
+					- <!-- .element: class="fragment" --> Actively maintained since 2016.
+					- <!-- .element: class="fragment" --> Download available from [Maven Central](https://cloudsimplus.org/docs/maven.html).
+
+					# Notes
+					- Only 6 contributors in CloudSim, including me (jun, 2021).
+				</script></section>
+
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Architecture
+					<img src="images/rubiks-cube-145422_1280.png" id="logo" />
+					
+					- <!-- .element: class="fragment" --> Simplified module structure, new modules introduced.
+					- <!-- .element: class="fragment" --> Totally re-organized, extended and documented packages.
+					- <!-- .element: class="fragment" --> New interfaces: increased abstraction, contracts for implementations.
+
+					# Notes
+					- New tools to be built on top of it.
+					- Easier to undersdant and maintain.
+					- An excellent starting point for learning.
+					- For Researchers: Increase abstraction and define contract for implementations.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Modules
+					![Re-structured Modules](images/modules.png)
+
+					- <!-- .element: class="fragment" --> **API**: independent and only one required for building simulations.
+					- <!-- .element: class="fragment" --> **Examples**: exclusive examples, refactored previous ones.
+					- <!-- .element: class="fragment" --> **Testbeds**: multi-run simulations forscientifically valid data collection. 
+					- <!-- .element: class="fragment" --> **Benchmarks**: performance assessment of features such as heuristics.
+
+					# Notes
+					Compounded of 4 modules.
+					- API: All other modules depend on it. Dark yellow are exclusive to CloudSim Plus.
+					- Examples updated. Exclusive examples.
+					- Multi-run simulations using pseudo random number generators (PRNGs).
+					- Assessment of heuristics and algorithms for tunning, such as Tabu Search for finding sub-optimal solutions for problems.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					#### Main Packages
+					![Re-structured Packages](images/package-structure-reduced.png)
+
+					# Notes
+					Easier to find a class.
+					- Dark Yellow: exclusive.
+					- Light Yellow: better organization.
+					- White: already existing.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## [Main Exclusive Features](http://cloudsimplus.org/#exclusive-features)
+					<div style="width: 256px" id="logo" >
+						<img src="images/exclusive.png" />
+						<img src="images/Jquery-swiss-army-knife.png"/>
+					</div>
+					
+					1. <!-- .element: class="fragment" --> Joint power- and network-aware simulations*;
+					2. <!-- .element: class="fragment" --> Vertical and Horizontal VM Scaling;
+					3. <!-- .element: class="fragment" --> Host power on and off according to demand*;
+					4. <!-- .element: class="fragment" --> Parallel execution of simulations;
+					5. <!-- .element: class="fragment" --> Delayed and dynamic creation of VMs/Cloudlets;
+					6. <!-- .element: class="fragment" --> Event Listeners for monitoring and data collection; 
+					7. <!-- .element: class="fragment" --> Strongly Object-oriented Framework;
+					8. <!-- .element: class="fragment" --> Interfaces and Classes for implementation of [Heuristics](http://en.wikipedia.org/wiki/Heuristic); 
+					9. <!-- .element: class="fragment" --> Host Fault Injection Mechanism*;
+					10. <!-- .element: class="fragment" --> Addition of Hosts at Simulation Runtime*;
+					11. <!-- .element: class="fragment" -->  Linux Completely Fair Scheduler (CFS) and more ...
+
+					# Notes
+					- Details in next sections | * = topicos not covered.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Vertical VM Scaling
+					![](images/vertical-scaling.gif)
+
+					- <!-- .element: class="fragment" --> resize of VM resources to fit workload
+					- <!-- .element: class="fragment" --> RAM, CPU, Bandwidth and Storage
+
+					# Notes
+					Most interesting features. Under and overload, SLA violations.
+					- Static or dynamic thresholds. 
+					- Load balance. Thresholds. Alternative for Vertical Scaling and VM migration.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Horizontal VM Scaling
+					![](images/horizontal-scaling.gif)
+
+					- <!-- .element: class="fragment" --> creation of VMs for load balancing;
+					- <!-- .element: class="fragment" --> destruction of idle VMs for resource optimization.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Parallel Execution of Simulations
+					![](images/gears.gif)
+
+					- <!-- .element: class="fragment" --> Reduce processing time for large scale simulations
+					- <!-- .element: class="fragment" --> [Relies on Java 8 Parallel Streams mechanism](https://github.com/manoelcampos/cloudsim-plus/blob/master/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/ParallelSimulationsExample.java):
+
+					<!-- .element: class="fragment" --> *simulations.parallelStream().forEach(MySimulation::run);* 
+
+					# Notes
+					- Simulations take several minutes. Multiple simulations at the same time.
+					- Java 8 Parallel Streams.
+					- Single line of code to run.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Delay creation of submitted VMs and Cloudlets
+					<img src="images/clock-png-25766.png" id="logo-bottom" />
+
+					- <!-- .element: class="fragment" --> Creation of objects at a given time, before starting the simulation
+					- <!-- .element: class="fragment" --> Used when the arrival times of objects are known in advance
+
+					# Notes
+					- Delay creation before start.
+					- When arrivals are known in advance.
+					- Different way from previous feature.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Dynamic Creation of VMs and Cloudlets (Apps)
+					<img src="images/dynamic-vm-creation.gif" />
+
+					- <!-- .element: class="fragment" --> Enables creating objects after the simulation has started
+					- <!-- .element: class="fragment" --> Objects inter-arrival time can be simulated with some PRNG
+
+					# Notes
+					Cloud: dynamic environment (requests for VMs and Apps execution).
+					- Created dynamically (desired conditions)
+					- No new DatacenterBrokers.
+					- Just submit to broker.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## Event Listeners
+					<img src="images/man-listening-music.png" id="logo" />
+
+					* <!-- .element: class="fragment" --> collect resource utilization data:
+						- <!-- .element: class="fragment" --> assess fulfillment of customer SLA 
+						- <!-- .element: class="fragment" --> optimize resource allocation to avoid under/overload
+						- <!-- .element: class="fragment" --> granular simulation execution feedback
+					* <!-- .element: class="fragment" --> Listeners for events from Hosts, VMs, Cloudlets and more.
+
+					# Notes
+					Most general purpose.
+					- Monitoring.
+					- Used by VM Scaling.
+					- Hosts, VMs, Cloudlets and more.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## 6. Strongly Object-oriented Framework
+
+					- <!-- .element: class="fragment" --> Actual relationships between objects: no ID-based relations
+					- <!-- .element: class="fragment" --> Fluent API,  direct chained calls: `cloudlet.getVm().getHost().getDatacenter()`
+					- <!-- .element: class="fragment" --> Uses [Null Object Pattern](https://en.wikipedia.org/wiki/Null_Object_pattern) to avoid NullPointerException.
+
+					# Notes
+					Strongly object-oriented.
+					- Actual relationships instead of int IDs.
+					- Fluent API, Chained calls. Easy to get information.
+					- Null Object Pattern.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## 7. Interfaces/Classes for Heuristics
+					<a href="https://commons.wikimedia.org/wiki/File:Knapsack.svg" id="logo"><img id="transparent" title="Source: https://commons.wikimedia.org/wiki/File:Knapsack.svg" src="images/277px-Knapsack.png"/></a>
+
+					- <!-- .element: class="fragment" --> Contract to implement heuristics in some steps:
+						1. <!-- .element: class="fragment" --> initial solution generation;
+						2. <!-- .element: class="fragment" --> generation of neighbor solutions;
+						3. <!-- .element: class="fragment" --> definition of an utility function to be minimized or maximized;
+						4. <!-- .element: class="fragment" --> and then the solution finding stop criteria.
+					- <!-- .element: class="fragment" --> Examples: [Tabu Search](http://en.wikipedia.org/wiki/Tabu_search), [Simulated Annealing](http://en.wikipedia.org/wiki/Simulated_annealing), [Ant Colony Systems](http://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms);
+					- <!-- .element: class="fragment" --> Includes a Simulated Annealing heuristic for Cloudlet to VM mapping.
+
+					# Notes
+					- Classes and Interfaces: contract to implement Heuristics in steps.
+					- Examples.
+					- Mapping Cloudlets to VMs.
+				</script></section>
+
+				<section data-markdown data-separator-notes="^# Notes"><script type="text/template">
+					## 8. Linux Completely Fair Scheduler (CFS)
+					<img id="logo-bottom" title="Source: http://www.mimastech.com/2016/11/13/how-to-setup-ntp-server-on-centos-765-linux-systems/" src="images/linux-clock.png"/>
+
+					- <!-- .element: class="fragment" --> `CloudletScheduler`: how a Vm schedules the execution of Cloudlets
+					- <!-- .element: class="fragment" --> Bad scheduling: starvation, wastage of CPU cycles, SLA violations
+					- <!-- .element: class="fragment" --> [Completely Fair Scheduler](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler) reduces these issues ([needs improvements](https://doi.org/10.1145/2901318.2901326) [Lozi et. al. 2016])
+					- <!-- .element: class="fragment" --> Considers tasks priorities to define CPU time slices
+					- <!-- .element: class="fragment" --> `CloudletSchedulerTimeShared`: [simplistic; ignores task's priority; no actual preemption](https://github.com/manoelcampos/cloudsim-plus/issues/33)
+					- <!-- .element: class="fragment" --> [CloudletSchedulerCompletelyFair](https://github.com/manoelcampos/cloudsim-plus/issues/58): more realistic implementation
+
+					# Notes
+					Linux Completely Fair Scheduler.
+					- Cloudlet Scheduler used by a VM.
+					- Bad scheduling consequences.
+					- The Completely Fair Scheduler,
+					- Task's priority.
+					- CloudletSchedulerTimeShared simplistic.
+					-  Completely Fair Scheduler: more realistic.
+				</script></section>
+
+				<!-- END -->
+				<section data-markdown><script type="text/template">
+					## Conclusions and Future Work
+
+					- <!-- .element: class="fragment" --> It is difficult to replicate a real system in simulation, mainly concerned in modelling the arrival of stochastic events such as workload bursts. 
+					- <!-- .element: class="fragment" --> To contribute for valid results, a simulation framework has to:
+						- <!-- .element: class="fragment" --> be well-designed and extensively tested;
+						- <!-- .element: class="fragment" --> get away from code duplication to avoid code degeneration;
+						- <!-- .element: class="fragment" --> and provide classes following software engineering principles. 
+					- <!-- .element: class="fragment" --> CloudSim Plus is aligned with all these requirements. 
+					- <!-- .element: class="fragment" --> Proposed future work is available at the [issues page](https://github.com/manoelcampos/cloudsim-plus/issues).
+				</script></section>
+
+				<section data-markdown><script type="text/template">
+					## Acknowledgements
+
+					CloudSim Plus is developed through a partnership between the [Instituto de Telecomunicações (IT, Portugal)](http://www.it.pt), the [Universidade da Beira Interior (UBI, Portugal)](http://www.ubi.pt) and the 
+					[Instituto Federal de Educação Ciência e Tecnologia do Tocantins (IFTO, Brazil)](http://www.ifto.edu.br). 
+					It is supported by the Brazilian [CAPES](http://www.capes.gov.br) (Proc. no 13585/13-4) and the Portuguese [FCT](https://www.fct.pt) (under the UID/EEA/50008/2013 Project) agencies.	
+
+					### Official Site & Presentation
+					[cloudsimplus.org](http://cloudsimplus.org) <br/>
+					[cloudsimplus.org/docs/presentation](http://cloudsimplus.org/docs/presentation)
+
+					<br/>
+					<small><a href="https://github.com/hakimel/reveal.js">Presentation powered by reveal.js</a></small>
+				</script></section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				overview: true,
+				keyboard: true,
+				slideNumber: "c/t",
+				touch: true,
+				loop: false,
+				fragments: true,
+				help: true,
+				showNotes: false,
+				mouseWheel: false,
+				hideAddressBar: true, // Hides the address bar on mobile devices
+				previewLinks: false, // Opens links in an iframe preview overlay
+				viewDistance: 2, // Number of slides away from the current that are visible
+				width: "100%", //can be used %
+				height: "100%",		
+				margin: 0,
+				minScale: 1,
+				maxScale: 1,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+			Reveal.configure({ pdfMaxPagesPerSlide: 1 });
+		</script>
+	</body>
+</html>
