@@ -24,8 +24,7 @@ import java.util.function.Function;
 
 /**
  * Represents a broker acting on behalf of a cloud customer.
- * It hides VM management such as vm creation, submission of cloudlets to VMs
- * and destruction of VMs.
+ * It hides VM management such as vm creation, submission of cloudlets to VMs and destruction of VMs.
  *
  * <p>
  * A broker implements the policies for selecting a VM to run a Cloudlet
@@ -69,9 +68,9 @@ public interface DatacenterBroker extends SimEntity {
      */
     boolean bindCloudletToVm(Cloudlet cloudlet, Vm vm);
 
+
     /**
-     * Gets the list of cloudlets submitted to the broker that are waiting to be created inside
-     * some Vm yet.
+     * Gets the list of cloudlets submitted to the broker that are waiting to be created inside some Vm yet.
      *
      * @param <T> the class of Cloudlets inside the list
      * @return the cloudlet waiting list
@@ -441,6 +440,7 @@ public interface DatacenterBroker extends SimEntity {
     DatacenterBroker setVmDestructionDelayFunction(Function<Vm, Double> function);
 
     List<Cloudlet> getCloudletSubmittedList();
+    Vm getlastSelectedVm(List<Vm> vmList);
 
     /**
      * Gets a List of VMs submitted to the broker that have failed to be created inside

@@ -159,9 +159,9 @@ public class CreateCloudletAfterLastFinishedOne {
 
         cloudletList.add(cloudlet);
 
-        if(cloudletList.size() < CLOUDLETS){
-            cloudlet.addOnFinishListener(this::cloudletFinishListener);
-        }
+//        if(cloudletList.size() < CLOUDLETS){
+//            cloudlet.addOnFinishListener(this::cloudletFinishListener);
+//        }
 
         broker.submitCloudlet(cloudlet);
     }

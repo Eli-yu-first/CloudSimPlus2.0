@@ -69,6 +69,11 @@ public abstract class DatacenterBrokerAbstract extends CloudSimEntity implements
      */
     private Vm lastSelectedVm;
 
+    @Override
+    public Vm getlastSelectedVm(List<Vm> vmList) {
+        return lastSelectedVm;
+    }
+
     /**
      * The last datacenter where a VM was created or tried to be created.
      */

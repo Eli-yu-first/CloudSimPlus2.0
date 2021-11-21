@@ -45,9 +45,14 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
 
     /** @see #getLength() */
     private long length;
+    private double lowerD;
+    private double upperD;
 
     /** @see #getNumberOfPes() */
     private long numberOfPes;
+
+    /** @see #getSensivityType() */
+    private int sensivityType;
 
     /** @see #getStatus() */
     private Status status;
@@ -88,6 +93,12 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
 
     /** @see #getCostPerBw() */
     private double costPerBw;
+
+    /** @see #getDeadline() () */
+    private double deadline;
+
+    /** @see #getIfContract() () */
+    private boolean IfContract;
 
     /** @see #getAccumulatedBwCost() */
     private double accumulatedBwCost;
@@ -459,6 +470,16 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
     }
 
     @Override
+    public final Cloudlet setDeadline(double Deadline) {
+        if (length == 0) {
+            throw new IllegalArgumentException("Cloudlet length cannot be zero.");
+        }
+
+        this.deadline = Deadline;
+        return this;
+    }
+
+    @Override
     public boolean setWallClockTime(final double wallTime, final double actualCpuTime) {
         if (wallTime < 0.0 || actualCpuTime < 0.0 || datacenterExecutionList.isEmpty()) {
             return false;
@@ -478,6 +499,7 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
         }
 
         if (newStatus == Status.SUCCESS) {
+            getVm().getCloudletsOnVm().poll();
             setFinishTime(getSimulation().clock());
         }
 
@@ -488,6 +510,20 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
     @Override
     public long getLength() {
         return length;
+    }
+    @Override
+    public int getRam() {
+        return 0;
+    }
+    @Override
+    public int getSensivityType() {
+        if(this.deadline < this.lowerD) {
+            return 2; //敏感度非常高
+        } else if(this.deadline > this.upperD) {
+            return 0; //敏感度不高
+        } else {
+            return 1; //敏感度适中
+        }
     }
 
     /**
@@ -773,6 +809,14 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
     @Override
     public double getCostPerBw() {
         return costPerBw;
+    }
+    @Override
+    public double getDeadline() {
+        return deadline;
+    }
+    @Override
+    public boolean getIfContract() {
+        return (getFinishTime() - getExecStartTime() + getWaitTime() <= deadline);
     }
 
     /**

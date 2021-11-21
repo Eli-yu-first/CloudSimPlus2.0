@@ -38,6 +38,7 @@ import java.util.List;
  * @since CloudSim Plus 1.0
  */
 public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, CustomerEntity {
+
     /**
      * Execution Status of Cloudlets.
      */
@@ -126,6 +127,7 @@ public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, Cu
      */
     boolean addRequiredFile(String fileName);
 
+
     /**
      * Adds a list of files to the required files list.
      * Just the files that don't exist yet in the current required list
@@ -186,7 +188,7 @@ public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, Cu
      * @return the input file size of this Cloudlet (in bytes)
      */
     long getFileSize();
-
+//    public boolean getIfContract();
     /**
      * Gets the output file size of this Cloudlet after execution (in bytes).
      * It is the data produced as result of cloudlet execution
@@ -196,6 +198,9 @@ public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, Cu
      * @return the Cloudlet output file size (in bytes)
      */
     long getOutputSize();
+
+    int getSensivityType();
+    int getRam();
 
     /**
      * Gets the execution status of this Cloudlet.
@@ -265,6 +270,19 @@ public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, Cu
      * @see DatacenterCharacteristics#setCostPerSecond(double)
      */
     double getCostPerSec();
+    /*set and get the deadline of this cloudlet */
+
+    /**
+     * @return true if at least one file was added,
+     */
+    double getDeadline();
+
+    /**
+     * @return true if ,
+     */
+    boolean getIfContract();
+
+    Cloudlet setDeadline(double Deadline);
 
     /**
      * Gets the cost ($) running this Cloudlet in a given Datacenter.

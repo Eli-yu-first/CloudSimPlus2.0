@@ -44,6 +44,7 @@ import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.ResourceProvisionerSimple;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
+import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModel;
@@ -53,9 +54,12 @@ import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.builders.tables.TextTableColumn;
+import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
+import org.junit.jupiter.engine.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * An example showing how to delay the submission of cloudlets.
@@ -91,7 +95,7 @@ public class DynamicCloudletsArrival1 {
     private final DatacenterBroker broker;
     private final Datacenter datacenter;
     private final CloudSim simulation;
-
+    Random random = new Random();
     /**
      * Starts the example execution, calling the class constructor\
      * to build and run the simulation.
@@ -184,14 +188,13 @@ public class DynamicCloudletsArrival1 {
     }
 
     private Vm createVm() {
-        int mips = 1000;
+//        int mips = 1000;
+        int mips = random.nextInt(200)+150;
         long size = 10000; // image size (Megabyte)
         int ram = 512; // vm memory (Megabyte)
         long bw = 1000;
-
-        return new VmSimple(mips, VM_PES_NUMBER)
-            .setRam(ram).setBw(bw).setSize(size)
-            .setCloudletScheduler(new CloudletSchedulerTimeShared());
+//        return new VmSimple(mips, VM_PES_NUMBER).setRam(ram).setBw(bw).setSize(size).setCloudletScheduler(new CloudletSchedulerTimeShared());
+        return new VmSimple(mips, VM_PES_NUMBER).setRam(ram).setBw(bw).setSize(size).setCloudletScheduler(new CloudletSchedulerSpaceShared());
     }
 
     /**
@@ -249,6 +252,6 @@ public class DynamicCloudletsArrival1 {
             .setRamProvisioner(new ResourceProvisionerSimple())
             .setBwProvisioner(new ResourceProvisionerSimple())
             .setVmScheduler(new VmSchedulerSpaceShared());
-
     }
+
 }

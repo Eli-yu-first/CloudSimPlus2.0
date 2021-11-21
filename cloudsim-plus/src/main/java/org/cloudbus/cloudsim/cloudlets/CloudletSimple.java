@@ -115,4 +115,5 @@ public class CloudletSimple extends CloudletAbstract {
             Long.compare(this.getId(), other.getId()) +
             this.getBroker().compareTo(other.getBroker());
     }
+
 }

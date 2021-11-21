@@ -41,7 +41,9 @@ import org.cloudsimplus.listeners.VmDatacenterEventInfo;
 import org.cloudsimplus.listeners.VmHostEventInfo;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * A class that implements the Null Object Design Pattern for {@link Vm}
@@ -82,6 +84,12 @@ class VmNull implements Vm {
     @Override public Host getHost() {
         return Host.NULL;
     }
+
+    @Override
+    public double getPredictTime(Cloudlet cloudlet) {
+        return 1.0*cloudlet.getLength()/this.getMips();
+    }
+
     @Override public double getMips() {
         return 0;
     }
@@ -216,5 +224,11 @@ class VmNull implements Vm {
     @Override public VmGroup getGroup() { return null; }
     @Override public double getTimeZone() { return Integer.MAX_VALUE; }
     @Override public Vm setTimeZone(double timeZone) { return this; }
+    @Override public Queue<Cloudlet> getCloudletsOnVm() {
+        return new LinkedList<>();
+    }
+    @Override public void setCloudletsOnVm(Queue<Cloudlet> CloudletsOnVm) {
+
+    }
     @Override public List<ResourceManageable> getResources() { return Collections.emptyList(); }
 }

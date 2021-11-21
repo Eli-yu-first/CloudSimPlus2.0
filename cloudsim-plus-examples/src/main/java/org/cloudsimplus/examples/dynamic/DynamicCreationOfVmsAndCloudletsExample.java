@@ -38,6 +38,7 @@ import org.cloudbus.cloudsim.provisioners.ResourceProvisionerSimple;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
+import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModel;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelFull;
@@ -75,6 +76,7 @@ public class DynamicCreationOfVmsAndCloudletsExample {
     private List<Vm> vmList;
     private int numberOfCreatedCloudlets = 0;
     private int numberOfCreatedVms = 0;
+    private int numberOfHosts = 1;
 
     public static void main(String[] args) {
         new DynamicCreationOfVmsAndCloudletsExample();
@@ -97,7 +99,7 @@ public class DynamicCreationOfVmsAndCloudletsExample {
         on behalf of a given cloud user (customer).*/
         broker0 = new DatacenterBrokerSimple(simulation);
 
-        final int vmsToCreate = 1;
+        final int vmsToCreate = 2;
         final int cloudletsToCreateByVm = 2;
         this.vmList = new ArrayList<>(vmsToCreate);
         this.cloudletList = new ArrayList<>(vmsToCreate*cloudletsToCreateByVm);
@@ -115,6 +117,7 @@ public class DynamicCreationOfVmsAndCloudletsExample {
         (you can use your own code here to print what you want from this cloudlet list)*/
         List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
+
         System.out.println(getClass().getSimpleName() + " finished!");
     }
 
@@ -154,7 +157,7 @@ public class DynamicCreationOfVmsAndCloudletsExample {
     }
 
     private DatacenterSimple createDatacenter() {
-        final int numberOfHosts = 1;
+        final int numberOfHosts = this.numberOfHosts;
         List<Host> hostList = new ArrayList<>(numberOfHosts);
         for (int i = 0; i < numberOfHosts; i++) {
             Host host = createHost();
@@ -179,7 +182,7 @@ public class DynamicCreationOfVmsAndCloudletsExample {
         return new HostSimple(ram, bw, storage, peList)
             .setRamProvisioner(new ResourceProvisionerSimple())
             .setBwProvisioner(new ResourceProvisionerSimple())
-                .setVmScheduler(new VmSchedulerTimeShared());
+                .setVmScheduler(new VmSchedulerSpaceShared());
     }
 
     private Vm createVm(DatacenterBroker broker) {

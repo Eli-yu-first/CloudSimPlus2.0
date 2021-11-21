@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.function.Predicate;
 
 /**
@@ -143,6 +144,8 @@ public interface Vm extends AbstractMachine<Resource>, UniquelyIdentifiable, Com
      * @see #isCreated()
      */
     Host getHost();
+
+    double getPredictTime(Cloudlet cloudlet);
 
     /**
      * Adds a listener object that will be notified when a {@link Host}
@@ -364,6 +367,7 @@ public interface Vm extends AbstractMachine<Resource>, UniquelyIdentifiable, Com
      * If you enable the statistics for the Host where the VM is placed,
      * that will automatically enable the statistics for every VM on that Host.
      */
+    @Override
     void enableUtilizationStats();
 
     /**
@@ -747,4 +751,8 @@ public interface Vm extends AbstractMachine<Resource>, UniquelyIdentifiable, Com
      */
     @Override
     Vm setTimeZone(double timeZone);
+
+    Queue<Cloudlet> getCloudletsOnVm();
+
+    void setCloudletsOnVm(Queue<Cloudlet> CloudletsOnVm);
 }

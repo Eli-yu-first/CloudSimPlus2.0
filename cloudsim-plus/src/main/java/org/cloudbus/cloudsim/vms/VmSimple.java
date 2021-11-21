@@ -90,6 +90,8 @@ public class VmSimple extends CustomerEntityAbstract implements Vm {
     /** @see #getFreePesNumber() */
     private long expectedFreePesNumber;
 
+    private Queue<Cloudlet> CloudletsOnVm = new LinkedList<>();
+
     /** @see #getSubmissionDelay() */
     private double submissionDelay;
 
@@ -307,7 +309,10 @@ public class VmSimple extends CustomerEntityAbstract implements Vm {
     public long getFreePesNumber() {
         return freePesNumber;
     }
-
+    @Override
+    public double getPredictTime(Cloudlet cloudlet) {
+        return 1.0*cloudlet.getLength()/this.getMips() ;
+    }
     /**
      * Sets the current number of free PEs.
      *
@@ -1083,6 +1088,16 @@ public class VmSimple extends CustomerEntityAbstract implements Vm {
     public Vm setTimeZone(final double timeZone) {
         this.timeZone = validateTimeZone(timeZone);
         return this;
+    }
+
+    @Override
+    public Queue<Cloudlet> getCloudletsOnVm() {
+        return CloudletsOnVm;
+    }
+
+    @Override
+    public void setCloudletsOnVm(Queue<Cloudlet> CloudletsOnVm) {
+        this.CloudletsOnVm = CloudletsOnVm;
     }
 
     public MipsShare getAllocatedMips() {

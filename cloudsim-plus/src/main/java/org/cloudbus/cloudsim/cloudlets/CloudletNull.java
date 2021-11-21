@@ -72,6 +72,9 @@ final class CloudletNull implements Cloudlet {
     @Override public long getFileSize() {
         return 0L;
     }
+    @Override public boolean getIfContract() {
+        return false;
+    }
     @Override public long getFinishedLengthSoFar() {
         return 0L;
     }
@@ -83,6 +86,12 @@ final class CloudletNull implements Cloudlet {
     }
     @Override public long getOutputSize() {
         return 0L;
+    }
+    @Override public int getSensivityType() {
+        return 0;
+    }
+    @Override public int getRam() {
+        return 0;
     }
     @Override public long getTotalLength() {
         return 0L;
@@ -176,6 +185,9 @@ final class CloudletNull implements Cloudlet {
     @Override public Cloudlet setOutputSize(long outputSize) {
         return Cloudlet.NULL;
     }
+    @Override public Cloudlet setDeadline(double Deadline) {
+        return Cloudlet.NULL;
+    }
     @Override public Cloudlet setSizes(long size) { return this; }
     @Override public boolean setStatus(Status newStatus) {
         return false;
@@ -216,6 +228,7 @@ final class CloudletNull implements Cloudlet {
     @Override public CustomerEntity setArrivedTime(double time) { return this; }
     @Override public double getCreationTime() { return 0; }
     @Override public double getWaitTime() { return 0; }
+    @Override public double getDeadline() { return 0; }
     @Override public boolean removeOnUpdateProcessingListener(EventListener<CloudletVmEventInfo> listener) { return false; }
     @Override public Cloudlet addOnUpdateProcessingListener(EventListener<CloudletVmEventInfo> listener) { return Cloudlet.NULL; }
     @Override public double getSubmissionDelay() { return 0; }

@@ -41,7 +41,7 @@ import java.util.List;
  * @since CloudSim Plus 1.0
  */
 public class CloudletsTableBuilder extends TableBuilderAbstract<Cloudlet> {
-    private static final String TIME_FORMAT = "%.0f";
+    private static final String TIME_FORMAT = "%.2f";
     private static final String SECONDS = "Seconds";
     private static final String CPU_CORES = "CPU cores";
 
@@ -80,14 +80,26 @@ public class CloudletsTableBuilder extends TableBuilderAbstract<Cloudlet> {
         addColumnDataFunction(getTable().addColumn("CloudletLen", "MI"), Cloudlet::getLength);
         addColumnDataFunction(getTable().addColumn("CloudletPEs", CPU_CORES), Cloudlet::getNumberOfPes);
 
-        TableColumn col = getTable().addColumn("StartTime", SECONDS).setFormat(TIME_FORMAT);
-        addColumnDataFunction(col, Cloudlet::getExecStartTime);
+        TableColumn col = getTable().addColumn("ArrivalTime", SECONDS).setFormat(TIME_FORMAT);
+        addColumnDataFunction(col, Cloudlet::getArrivedTime);
+
+        col = getTable().addColumn("SubmissionDelay", SECONDS).setFormat(TIME_FORMAT);
+        addColumnDataFunction(col, cl -> roundTime(cl, cl.getSubmissionDelay()));
+
+        col = getTable().addColumn("WaittingTime", SECONDS).setFormat(TIME_FORMAT);
+        addColumnDataFunction(col, cl -> roundTime(cl, cl.getWaitingTime()));
+
+        col = getTable().addColumn("StartTime", SECONDS).setFormat(TIME_FORMAT);
+        addColumnDataFunction(col, cl -> roundTime(cl, cl.getExecStartTime()));
 
         col = getTable().addColumn("FinishTime", SECONDS).setFormat(TIME_FORMAT);
         addColumnDataFunction(col, cl -> roundTime(cl, cl.getFinishTime()));
 
         col = getTable().addColumn("ExecTime", SECONDS).setFormat(TIME_FORMAT);
         addColumnDataFunction(col, cl -> roundTime(cl, cl.getActualCpuTime()));
+
+        addColumnDataFunction(getTable().addColumn("IfContract", CPU_CORES), Cloudlet::getIfContract);
+
     }
 
     /**
