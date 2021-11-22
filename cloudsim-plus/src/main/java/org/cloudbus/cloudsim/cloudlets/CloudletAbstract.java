@@ -500,6 +500,7 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
 
         if (newStatus == Status.SUCCESS) {
             getVm().getCloudletsOnVm().poll();
+      System.out.println(getFinishTime()+" :cloudlet_"+getId()+" 执行完，将他从Vm_"+getVm().getId()+" 中删除");
             setFinishTime(getSimulation().clock());
         }
 
@@ -816,7 +817,7 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
     }
     @Override
     public boolean getIfContract() {
-        return (getFinishTime() - getExecStartTime() + getWaitTime() <= deadline);
+        return (getActualCpuTime() + getWaitTime() <= deadline);
     }
 
     /**

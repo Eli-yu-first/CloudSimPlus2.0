@@ -98,6 +98,9 @@ public class CloudletsTableBuilder extends TableBuilderAbstract<Cloudlet> {
         col = getTable().addColumn("ExecTime", SECONDS).setFormat(TIME_FORMAT);
         addColumnDataFunction(col, cl -> roundTime(cl, cl.getActualCpuTime()));
 
+        col = getTable().addColumn("Deadline", SECONDS).setFormat(TIME_FORMAT);
+        addColumnDataFunction(col, cl -> roundTime(cl, cl.getDeadline()));
+
         addColumnDataFunction(getTable().addColumn("IfContract", CPU_CORES), Cloudlet::getIfContract);
 
     }

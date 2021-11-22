@@ -1,15 +1,5 @@
 package org.cloudsimplus.examples.deadlinBasedsimulations;
 
-/**
- * @author : ZY @Type : DynamicCloudletsArrival2.java
- * @date : 11/16/2021 23:12 @Description : null
- */
-
-import org.apache.commons.io.FileUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
@@ -17,8 +7,6 @@ import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
-import org.cloudbus.cloudsim.distributions.ContinuousDistribution;
-import org.cloudbus.cloudsim.distributions.UniformDistr;
 import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -33,13 +21,9 @@ import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.listeners.CloudletVmEventInfo;
-import org.cloudsimplus.listeners.EventInfo;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -53,22 +37,24 @@ import java.util.*;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class DynamicCloudletsArrival2 {
+public class DynamicCloudletsArrival2test {
   /** Number of Processor Elements (CPU Cores) of each Host. */
   private static final int HOST_PES_NUMBER = 5;
 
   /** Number of Processor Elements (CPU Cores) of each VM and cloudlet. */
   private static final int VM_PES_NUMBER = 1;
+
   private static final double TIME_TO_TERMINATE_SIMULATION = 500;
   /** Number of Cloudlets to create simultaneously. Other cloudlets will be enqueued. */
-  private static final int CLOUDLETS_NUMBER = 10;
+  private static final int VMS_NUMBER = 5;
+
+  private static final int CLOUDLETS_NUMBER = VM_PES_NUMBER * VMS_NUMBER + 50;
   private static final int INITIAL_CLOUDLETS_NUMBER = 5;
-  private static final int CLOUDLETS_All_NUMBER = 6;
   private static final int DATACENTER_NUMBER = 2;
 
   /** Number of Vms to create simultaneously. */
-  private static final int NUMBER_OF_VMS = 5;
   private static final int CloudletToVM_RoundRobin = 0; // 轮询算法
+
   private static final int CloudletToVM_CTVOS = 1; // 我们的询算法
   private static final int CloudletToVM_GREEDY = 2; // 贪心算法
   private static File file = new File("D:\\testData\\retult.txt");
@@ -84,9 +70,12 @@ public class DynamicCloudletsArrival2 {
   private String SheetName;
   private String ValueName;
   private Cloudlet cloudlet = null;
-
   /** Default constructor that builds and starts the simulation. */
-  private DynamicCloudletsArrival2() throws IOException {
+  private DynamicCloudletsArrival2test() throws IOException {
+    /*Enables just some level of log messages.
+    Make sure to import org.cloudsimplus.util.Log;*/
+    // Log.setLevel(ch.qos.logback.classic.Level.WARN);
+
     /*Enables just some level of log messages.
     Make sure to import org.cloudsimplus.util.Log;*/
     this.ValueName = "DisContract";
@@ -101,7 +90,7 @@ public class DynamicCloudletsArrival2 {
     createDatacenter(DATACENTER_NUMBER);
     this.broker = new DatacenterBrokerSimple(simulation);
 
-    List<Vm> vmList = createVmList(NUMBER_OF_VMS);
+    List<Vm> vmList = createVmList(VMS_NUMBER);
     this.vmList.addAll(vmList);
 
     createAndSubmitCloudletsOnVmList(this.vmList);
@@ -110,7 +99,7 @@ public class DynamicCloudletsArrival2 {
 
     printContractRate(cloudletList);
 
-    System.out.println("  " + getSheetName()+" algorithm Simulation finished!");
+    System.out.println("  " + getSheetName() + " algorithm Simulation finished!");
   }
 
   /**
@@ -119,56 +108,85 @@ public class DynamicCloudletsArrival2 {
    * @param args command line parameters
    */
   public static void main(String[] args) throws IOException {
-//    for (int i = 0; i < testTimes; ++i) {
-      new DynamicCloudletsArrival2();
-//    }
+    for (int i = 0; i < testTimes; ++i) {
+      new DynamicCloudletsArrival2test();
+    }
     System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
   }
 
-  private static void printCloudletList(List<Cloudlet> list) {
-    // 去掉重复提交的cloudlet
-    LinkedHashSet<Cloudlet> hashSet = new LinkedHashSet<>(list);
-    list = new ArrayList<Cloudlet>(hashSet);
-
-    int size = list.size();
-    Cloudlet cloudlet;
-
-    DecimalFormat dft = new DecimalFormat("###.##");
-    int ContractNum = 0;
-    for (int i = 0; i < size; i++) {
-      cloudlet = list.get(i);
-      System.out.println(
-          "第" + i + "个cloudlet_的id是" + cloudlet.getId() + ",deadline = " + cloudlet.getDeadline());
-    }
+  public String getSheetName() {
+    return this.SheetName;
   }
 
-  private void createAndSubmitCloudletsOnVmList(List<Vm> vmList) {
-    int preid = cloudletList.size();
-    double submissionDelay = random.nextInt(5) + 5;
+  public void setSheetName(String sheetName) {
+    this.SheetName = sheetName;
+  }
+
+  private void runSimulationAndPrintResults() {
+    simulation.start();
+    List<Cloudlet> cloudlets = broker.getCloudletFinishedList();
+    new CloudletsTableBuilder(cloudlets).build();
+  }
+
+  /**
+   * Creates cloudlets and submit them to the broker, applying a different submission delay for each
+   * one (simulating the dynamic cloudlet arrival).
+   *
+   * @param vm Vm to run the cloudlets to be created
+   */
+  private void createAndSubmitCloudlets(Vm vm) {
+    int cloudletId = cloudletList.size();
+    double submissionDelay = 0;
     List<Cloudlet> list = new ArrayList<>(CLOUDLETS_NUMBER);
-
     for (int i = 0; i < CLOUDLETS_NUMBER; i++) {
-      Cloudlet cloudlet = createCloudlet(preid+i, broker);
-      setCloudlet(cloudlet);
-
-      Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
-//      Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_GREEDY);//贪心算法
-//      Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_RoundRobin);//轮询算法
-      cloudlet.setVm(vm);
-      if (vm == null) {
-        System.out.println("vm == null");
-      }
-      vm.getCloudletsOnVm().add(cloudlet);
-
-      submissionDelay += 15;
+      Cloudlet cloudlet = createCloudlet(cloudletId++, broker);
       cloudlet.setSubmissionDelay(submissionDelay);
-      cloudletList.add(cloudlet);
-
-      if (cloudletList.size() < CLOUDLETS_NUMBER) {
-        cloudlet.addOnFinishListener(this::cloudletFinishListener);
-      }
-      broker.submitCloudlet(cloudlet);
+      submissionDelay += 10;
+      list.add(cloudlet);
     }
+
+    broker.submitCloudletList(list);
+    cloudletList.addAll(list);
+  }
+
+  /**
+   * Creates a VM with pre-defined configuration.
+   *
+   * @param id the VM id
+   * @param broker the broker that will be submit the VM
+   * @return the created VM
+   */
+  private Vm createVm(int id, DatacenterBroker broker) {
+    int mips = 1000;
+    long size = 10000; // image size (Megabyte)
+    int ram = 512; // vm memory (Megabyte)
+    long bw = 1000;
+
+    return new VmSimple(id, mips, VM_PES_NUMBER)
+        .setRam(ram)
+        .setBw(bw)
+        .setSize(size)
+        .setCloudletScheduler(new CloudletSchedulerSpaceShared());
+  }
+
+  private List<Vm> createVms(int id, int nums, DatacenterBroker broker) {
+    List<Vm> vmList = new ArrayList<Vm>(nums);
+    for (int i = 0; i < 4; ++i) {
+      int mips = 1000;
+      long size = 10000; // image size (Megabyte)
+      int ram = 512; // vm memory (Megabyte)
+      long bw = 1000;
+
+      Vm vm =
+          new VmSimple(id, mips, 1)
+              .setRam(ram)
+              .setBw(bw)
+              .setSize(size)
+              .setCloudletScheduler(new CloudletSchedulerSpaceShared());
+
+      vmList.add(vm);
+    }
+    return vmList;
   }
 
   /**
@@ -184,42 +202,28 @@ public class DynamicCloudletsArrival2 {
     long length = random.nextInt(5000) + 8000; // in number of Million Instructions (MI)
     int pesNumber = 1;
     UtilizationModel utilizationModel = new UtilizationModelFull();
-
-    Cloudlet cloudlet =
-        new CloudletSimple(id, length, pesNumber)
-            .setFileSize(fileSize)
-            .setOutputSize(outputSize)
-            .setUtilizationModel(utilizationModel)
-            .setDeadline(random.nextDouble(length / 170) + random.nextDouble(1.0 * length / 210) * 3);
-
-    return cloudlet;
+    return new CloudletSimple(id, length, pesNumber)
+        .setFileSize(fileSize)
+        .setOutputSize(outputSize)
+        .setUtilizationModel(utilizationModel)
+        .setDeadline(random.nextDouble(length / 170) + random.nextDouble(1.0 * length / 210) * 3);
   }
 
-  /**
-   * Creates a VM with pre-defined configuration.
-   *
-   * @param id the VM id
-   * @param broker the broker that will be submit the VM
-   * @return the created VM
-   */
-  private List<Vm> createVms(int id, int nums, DatacenterBroker broker) {
-    List<Vm> vmList = new ArrayList<Vm>(nums);
-    for (int i = id; i < nums + id; i++) {
-      int mips = random.nextInt(170) + 150;
-      long size = 1000; // image size (Megabyte)
-      int ram = 512; // vm memory (Megabyte)
-      long bw = 1000;
-
-      Vm vm =
-          new VmSimple(i, mips, VM_PES_NUMBER)
-              .setRam(ram)
-              .setBw(bw)
-              .setSize(size)
-              .setCloudletScheduler(new CloudletSchedulerSpaceShared());
-
-      vmList.add(vm);
+  private Vm bindCloudletToVm(
+      List<Vm> vmList, Cloudlet cloudlet, DatacenterBroker broker, int type) {
+    switch (type) {
+      case CloudletToVM_CTVOS:
+        setSheetName("CTVOS_" + ValueName);
+        return bindCloudletToVm_CTVOS(cloudlet, vmList);
+      case CloudletToVM_GREEDY:
+        setSheetName("GREEDY_" + ValueName);
+        return bindCloudletToVm_GREEDY(cloudlet, vmList);
+      case CloudletToVM_RoundRobin:
+        setSheetName("RoundRobin_" + ValueName);
+        return bindCloudletToVm_RoundRobin(cloudlet, vmList);
+      default:
+        return null;
     }
-    return vmList;
   }
 
   /* Place cloudlet to a vm based on sensivity-based algorithm. */
@@ -390,7 +394,7 @@ public class DynamicCloudletsArrival2 {
   }
 
   private List<Vm> createVmList(int nums) {
-    List<Vm> list = new ArrayList<>(NUMBER_OF_VMS);
+    List<Vm> list = new ArrayList<>(VMS_NUMBER);
     list = createVms(0, nums, broker);
     broker.submitVmList(list);
     return list;
@@ -432,30 +436,69 @@ public class DynamicCloudletsArrival2 {
         .setVmScheduler(new VmSchedulerSpaceShared());
   }
 
-  private Vm bindCloudletToVm(List<Vm> vmList, Cloudlet cloudlet, DatacenterBroker broker, int type) {
-    switch (type) {
-      case CloudletToVM_CTVOS:
-        setSheetName("CTVOS_" + ValueName);
-        return bindCloudletToVm_CTVOS(cloudlet, vmList);
-      case CloudletToVM_GREEDY:
-        setSheetName("GREEDY_" + ValueName);
-        return bindCloudletToVm_GREEDY(cloudlet, vmList);
-      case CloudletToVM_RoundRobin:
-        setSheetName("RoundRobin_" + ValueName);
-        return bindCloudletToVm_RoundRobin(cloudlet, vmList);
-      default:
-        return null;
+  //    private void createAndSubmitCloudletsOnVmList(List<Vm> vmList) {
+  //        int preid = cloudletList.size();
+  //        double submissionDelay = random.nextInt(5) + 5;
+  //        List<Cloudlet> list = new ArrayList<>(CLOUDLETS_NUMBER);
+  //
+  //        for (int i = 0; i < CLOUDLETS_NUMBER; i++) {
+  //            Cloudlet cloudlet = createCloudlet(preid+i, broker);
+  //            setCloudlet(cloudlet);
+  //
+  //            Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); //
+  // 我们的算法
+  ////      Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_GREEDY);//贪心算法
+  ////      Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_RoundRobin);//轮询算法
+  //            cloudlet.setVm(vm);
+  //
+  //            vm.getCloudletsOnVm().add(cloudlet);
+  //
+  //            submissionDelay += 15;
+  //            cloudlet.setSubmissionDelay(submissionDelay);
+  //
+  //            if (cloudletList.size() < CLOUDLETS_NUMBER) {
+  //                cloudlet.addOnFinishListener(this::cloudletFinishListener);
+  //            }
+  //            cloudletList.add(cloudlet);
+  //
+  //            broker.submitCloudlet(cloudlet);
+  //        }
+  //    }
+  private void createAndSubmitCloudletsOnVmList(List<Vm> vmList) {
+    int preid = cloudletList.size();
+    double submissionDelay = random.nextInt(5) + 5;
+    List<Cloudlet> list = new ArrayList<>(CLOUDLETS_NUMBER);
+
+    Cloudlet cloudlet = createCloudlet(preid, broker);
+    setCloudlet(cloudlet);
+
+    Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
+    //      Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_GREEDY);//贪心算法
+    //      Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_RoundRobin);//轮询算法
+    cloudlet.setVm(vm);
+
+    vm.getCloudletsOnVm().add(cloudlet);
+
+    submissionDelay += 15;
+    cloudlet.setSubmissionDelay(submissionDelay);
+
+    if (cloudletList.size() < CLOUDLETS_NUMBER) {
+      cloudlet.addOnFinishListener(this::cloudletFinishListener);
     }
+    cloudletList.add(cloudlet);
+
+    broker.submitCloudlet(cloudlet);
   }
 
-  private void runSimulationAndPrintResults() {
-//      simulation.addOnClockTickListener(this::createRandomCloudlets);
-      simulation.start();
-    List<Cloudlet> cloudlets = broker.getCloudletFinishedList();
-    new CloudletsTableBuilder(cloudlets).build();
+  public Cloudlet getCloudlet() {
+    return cloudlet;
   }
 
-    private void printContractRate(List<Cloudlet> cloudletList) throws IOException {
+  public void setCloudlet(Cloudlet cloudlet) {
+    this.cloudlet = cloudlet;
+  }
+
+  private void printContractRate(List<Cloudlet> cloudletList) throws IOException {
     int ContractNum = 0;
     int size = cloudletList.size();
     for (int i = 0; i < size; i++) {
@@ -470,9 +513,9 @@ public class DynamicCloudletsArrival2 {
   private double getPretime(Cloudlet cloudlet, Vm vm) {
     double preWaitTime = 0.0;
     Queue<Cloudlet> queue = vm.getCloudletsOnVm();
-    if(queue == null){
+    if (queue == null) {
       System.out.println("queue == null");
-        }
+    }
     while (queue.peek() != null) {
       Cloudlet cloudlet1 = queue.poll();
       preWaitTime += cloudlet1.getLength() / vm.getMips();
@@ -482,7 +525,11 @@ public class DynamicCloudletsArrival2 {
               + ",正在等待Vm_"
               + vm.getId()
               + "等待时间_"
-              + cloudlet1.getLength() +"/"+ vm.getMips()+"="+ cloudlet1.getLength() / vm.getMips());
+              + cloudlet1.getLength()
+              + "/"
+              + vm.getMips()
+              + "="
+              + cloudlet1.getLength() / vm.getMips());
     }
     double execTime = 1.0 * cloudlet.getLength() / vm.getMips();
     System.out.println(
@@ -504,83 +551,15 @@ public class DynamicCloudletsArrival2 {
     createAndSubmitCloudletsOnVmList(this.vmList);
   }
 
-  public Cloudlet getCloudlet() {
-    return cloudlet;
-  }
-
-  public void setCloudlet(Cloudlet cloudlet) {
-    this.cloudlet = cloudlet;
-  }
-
-  public void dataToExcel(String ValueName, double value) throws IOException {
-    File file1 = new File("D:\\testData\\" + this.fileName + ".xls");
-    if (!file1.exists()) {
-      file1.createNewFile();
-    }
-    FileInputStream inputStream = new FileInputStream(file1);
-    // 创建Excel文件薄
-    HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-    // 创建工作表sheeet
-    HSSFSheet sheet = workbook.getSheet(SheetName);
-    if (sheet == null) {
-      System.out.println("正在创建" + SheetName + "工作簿");
-      sheet = workbook.createSheet(SheetName);
-    }
-    // 创建第一行
-    HSSFRow row = sheet.createRow(0);
-    int lastRowNum = sheet.getLastRowNum();
-
-    if (lastRowNum == 0) {
-      String[] title = {"第n次模拟", ValueName};
-      HSSFCell cell = null;
-      for (int i = 0; i < title.length; i++) {
-        cell = row.createCell(i);
-        cell.setCellValue(title[i]);
-      }
-    }
-
-    // 追加数据
-    HSSFRow nextrow = sheet.createRow(lastRowNum + 1);
-    System.out.println("正在 " + (lastRowNum + 1) + "行添加数据");
-    HSSFCell cell2 = nextrow.createCell(0);
-    cell2.setCellValue("第" + lastRowNum + "次模拟");
-    cell2 = nextrow.createCell(1);
-    cell2.setCellValue(value);
-
-    FileOutputStream stream = FileUtils.openOutputStream(file1);
-    workbook.write(stream);
-    stream.close();
-  }
-
-  public void setSheetName(String sheetName) {
-    this.SheetName = sheetName;
-  }
-  public String getSheetName() {
-       return this.SheetName;
-    }
-  public void setValueName(String ValueName) {
-    this.ValueName = ValueName;
-  }
-
-  public double getpreArriveTime(){
-      List<Cloudlet> submittedCloudlets =  broker.getCloudletSubmittedList();
-      List<Vm> vmList =  broker.getVmCreatedList();
-      double Alllength = 0;
-      double AllVmMips = 0;
-      for (Cloudlet cloudlet : submittedCloudlets) {
-          Alllength += cloudlet.getLength();
-      }
-      for (Vm vm : vmList) {
-          AllVmMips += vm.getMips();
-      }
-      return  1.0*Alllength/AllVmMips;
-  }
-
   // Cloudlet根据MI降序排列
   private class CloudletComparator implements Comparator<Cloudlet> {
     @Override
     public int compare(Cloudlet cl1, Cloudlet cl2) {
-      return (int) (cl2.getLength()+cl2.getDeadline()*50000 - cl1.getLength()+cl1.getDeadline()*5000 );
+      return (int)
+          (cl2.getLength()
+              + cl2.getDeadline() * 50000
+              - cl1.getLength()
+              + cl1.getDeadline() * 5000);
     }
   }
 
