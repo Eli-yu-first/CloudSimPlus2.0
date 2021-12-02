@@ -176,8 +176,10 @@ public class RandomCloudletsArrivalExample {
 
         System.out.println("  " + getSheetName()+" algorithm Simulation finished!");
         List<Cloudlet> sub = broker.getCloudletFinishedList();
+        int i = 0;
         for (Cloudlet cloudlet1 : sub) {
-      System.out.println("cashjfoaih_"+cloudlet1.getId());
+      System.out.println("第"+i+"个cloudlet的id是_"+""+cloudlet1.getId());
+      i++;
         }
     }
 
@@ -244,12 +246,6 @@ public class RandomCloudletsArrivalExample {
         return vmList;
     }
 
-    private Vm createVm(final int pes) {
-        return new VmSimple(1000, pes)
-            .setRam(1000).setBw(1000).setSize(10000)
-            .setCloudletScheduler(new CloudletSchedulerTimeShared());
-    }
-
     /**
      * Creates a list of Cloudlets.
      * @param count number of Cloudlets to create statically
@@ -274,7 +270,10 @@ public class RandomCloudletsArrivalExample {
                 .setLength(length)
                 .setFileSize(fileSize)
                 .setOutputSize(outputSize)
-                .setUtilizationModel(utilizationModel)
+//                .setUtilizationModel(utilizationModel)
+                .setUtilizationModelCpu(new UtilizationModelFull())
+                .setUtilizationModelRam(um)
+                .setUtilizationModelBw(um)
                 .setDeadline(random1.nextDouble(length / 170) + random1.nextDouble(1.0 * length / 210) * 3);
 
         setCloudlet(cloudlet);
@@ -283,9 +282,6 @@ public class RandomCloudletsArrivalExample {
 //        Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_GREEDY);//贪心算法
         Vm vm = bindCloudletToVm(this.vmList,cloudlet,broker,CloudletToVM_RoundRobin);//轮询算法
         cloudlet.setVm(vm);
-
-//        submissionDelay += 10*cloudlet.getId();
-//        cloudlet.setSubmissionDelay(10*cloudlet.getId());
 
         return cloudlet;
     }
@@ -490,9 +486,6 @@ public class RandomCloudletsArrivalExample {
 
     /* Place cloudlet to a vm based on Round-Robin algorithm. */
     private Vm bindCloudletToVm_RoundRobin(Cloudlet cloudlet, List<Vm> vmList) {
-    System.out.println("((cloudlet.getId()) = " + ((cloudlet.getId()+1) ));
-    System.out.println("(vmList.size())) = " + (vmList.size()));
-    System.out.println("((cloudlet.getId()) % (vmList.size())) = " + ((cloudlet.getId()) % (vmList.size())));
         return vmList.get((int) ((cloudlet.getId()+1) % (vmList.size())));
     }
 
