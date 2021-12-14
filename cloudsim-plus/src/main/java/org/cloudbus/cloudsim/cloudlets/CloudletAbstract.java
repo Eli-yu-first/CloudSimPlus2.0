@@ -500,7 +500,7 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
 
         if (newStatus == Status.SUCCESS) {
             getVm().getCloudletsOnVm().poll();
-      System.out.println(getFinishTime()+" :cloudlet_"+getId()+" 执行完，将他从Vm_"+getVm().getId()+" 中删除");
+//      System.out.println(getFinishTime()+" :cloudlet_"+getId()+" 执行完，将他从Vm_"+getVm().getId()+" 中删除");
             setFinishTime(getSimulation().clock());
         }
 
@@ -518,13 +518,35 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
     }
     @Override
     public int getSensivityType() {
-        if(this.deadline < this.lowerD) {
-            return 2; //敏感度非常高
-        } else if(this.deadline > this.upperD) {
-            return 0; //敏感度不高
-        } else {
-            return 1; //敏感度适中
+        List<Vm> vmList = getBroker().getVmCreatedList();
+        double Amips=  0;
+        for (Vm vmv : vmList) {
+            Amips += vmv.getMips();
         }
+        Amips /= (vmList.size());
+        double AexecTime = this.length / Amips;
+        if(this.deadline > AexecTime+100) {
+            return 0;
+        } else if(this.deadline < AexecTime+80) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+//    public int getSensivityType() {
+//        return sensivityType;
+////        if(this.deadline < this.lowerD) {
+////            return 2; //敏感度非常高
+////        } else if(this.deadline > this.upperD) {
+////            return 0; //敏感度不高
+////        } else {
+////            return 1; //敏感度适中
+////        }
+//    }
+    @Override
+    public Cloudlet setSensivityType(int sensivityType) {
+        this.sensivityType = sensivityType;
+        return this;
     }
 
     /**
@@ -817,7 +839,8 @@ public abstract class CloudletAbstract extends CustomerEntityAbstract implements
     }
     @Override
     public boolean getIfContract() {
-        return (getActualCpuTime() + getWaitTime() <= deadline);
+//    System.out.println("getFinishTime()"+getFinishTime()+" ,getExecStartTime()"+getExecStartTime()+" ,getExecStartTime()"+getActualCpuTime()+" ,getWaitTime()"+getWaitTime()+" ,deadline"+deadline);
+        return (getActualCpuTime()+ getWaitingTime()<= deadline);
     }
 
     /**

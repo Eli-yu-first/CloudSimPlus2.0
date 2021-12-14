@@ -38,6 +38,7 @@ import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
+import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.util.TimeUtil;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModel;
@@ -75,7 +76,7 @@ public class PerformanceExample1 {
      * This parameter is a trade-off between performance and accuracy.
      * @see Datacenter#getSchedulingInterval()
      */
-    private static final double SCHEDULING_INTERVAL = TimeUtil.hoursToSeconds(1);
+    private static final double SCHEDULING_INTERVAL = TimeUtil.hoursToSeconds(0.001);
     private static final int HOSTS = 50_000;
     private static final int HOST_PES = 64;
 
@@ -156,7 +157,7 @@ public class PerformanceExample1 {
         final long bw = 10000; //in Megabits/s
         final long storage = 1000000; //in Megabytes
         final Host host = new HostSimple(ram, bw, storage, peList);
-        host.setVmScheduler(new VmSchedulerTimeShared());
+        host.setVmScheduler(new VmSchedulerSpaceShared());
         return host;
     }
 

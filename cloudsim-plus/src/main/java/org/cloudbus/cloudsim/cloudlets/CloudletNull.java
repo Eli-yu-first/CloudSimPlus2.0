@@ -188,6 +188,8 @@ final class CloudletNull implements Cloudlet {
     @Override public Cloudlet setDeadline(double Deadline) {
         return Cloudlet.NULL;
     }
+    @Override public Cloudlet setSensivityType(int i) { return this; }
+
     @Override public Cloudlet setSizes(long size) { return this; }
     @Override public boolean setStatus(Status newStatus) {
         return false;

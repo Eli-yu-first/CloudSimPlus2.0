@@ -76,6 +76,7 @@ public class CloudletsTableBuilder extends TableBuilderAbstract<Cloudlet> {
         addColumnDataFunction(getTable().addColumn("Host", ID), cloudlet -> cloudlet.getVm().getHost().getId());
         addColumnDataFunction(getTable().addColumn("Host PEs ", CPU_CORES), cloudlet -> cloudlet.getVm().getHost().getWorkingPesNumber());
         addColumnDataFunction(getTable().addColumn("VM", ID), cloudlet -> cloudlet.getVm().getId());
+        addColumnDataFunction(getTable().addColumn("VM_Mips", ID), cloudlet -> cloudlet.getVm().getMips());
         addColumnDataFunction(getTable().addColumn("VM PEs   ", CPU_CORES), cloudlet -> cloudlet.getVm().getNumberOfPes());
         addColumnDataFunction(getTable().addColumn("CloudletLen", "MI"), Cloudlet::getLength);
         addColumnDataFunction(getTable().addColumn("CloudletPEs", CPU_CORES), Cloudlet::getNumberOfPes);
@@ -100,6 +101,9 @@ public class CloudletsTableBuilder extends TableBuilderAbstract<Cloudlet> {
 
         col = getTable().addColumn("Deadline", SECONDS).setFormat(TIME_FORMAT);
         addColumnDataFunction(col, cl -> roundTime(cl, cl.getDeadline()));
+
+        col = getTable().addColumn("Cost", SECONDS).setFormat(TIME_FORMAT);
+        addColumnDataFunction(col, cl -> roundTime(cl, cl.getTotalCost()));
 
         addColumnDataFunction(getTable().addColumn("IfContract", CPU_CORES), Cloudlet::getIfContract);
 

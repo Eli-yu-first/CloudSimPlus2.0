@@ -143,7 +143,7 @@ public class RandomCloudletsArrivalExample {
         System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
     }
 
-    private RandomCloudletsArrivalExample() throws IOException {
+    public RandomCloudletsArrivalExample() throws IOException {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);

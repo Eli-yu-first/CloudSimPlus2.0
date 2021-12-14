@@ -20,6 +20,7 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
 import org.cloudsimplus.autoscaling.HorizontalVmScaling;
 import org.cloudsimplus.autoscaling.VerticalVmScaling;
 import org.cloudsimplus.autoscaling.VmScaling;
+import org.cloudsimplus.builders.BrokerBuilder;
 import org.cloudsimplus.listeners.EventListener;
 import org.cloudsimplus.listeners.VmDatacenterEventInfo;
 import org.cloudsimplus.listeners.VmHostEventInfo;
@@ -311,7 +312,16 @@ public class VmSimple extends CustomerEntityAbstract implements Vm {
     }
     @Override
     public double getPredictTime(Cloudlet cloudlet) {
-        return 1.0*cloudlet.getLength()/this.getMips() ;
+        double waitingTime = 0.0;
+        List<Cloudlet> CloudletWaitingList = getBroker().getCloudletWaitingList();
+        for (Cloudlet CL : CloudletWaitingList) {
+            if (CL.getVm() == this){
+                waitingTime += CL.getLength()/this.getMips();
+            }
+        }
+        double execTime = 1.0*cloudlet.getLength()/this.getMips();
+
+        return waitingTime+execTime ;
     }
     /**
      * Sets the current number of free PEs.

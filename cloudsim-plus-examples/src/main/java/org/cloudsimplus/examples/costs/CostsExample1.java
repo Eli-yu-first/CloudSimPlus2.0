@@ -227,7 +227,7 @@ public class CostsExample1 {
         }
 
         System.out.printf(
-            "Total cost ($) for %3d created VMs from %3d in DC %d: %8.2f$ %13.2f$ %17.2f$ %12.2f$ %15.2f$%n",
+            " %8.2f$ %13.2f$ %17.2f$ %12.2f$ %15.2f$%n",
             totalNonIdleVms, broker0.getVmsNumber(), datacenter0.getId(),
             processingTotalCost, memoryTotaCost, storageTotalCost, bwTotalCost, totalCost);
     }

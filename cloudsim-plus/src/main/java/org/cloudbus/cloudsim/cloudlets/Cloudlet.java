@@ -39,6 +39,7 @@ import java.util.List;
  */
 public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, CustomerEntity {
 
+
     /**
      * Execution Status of Cloudlets.
      */
@@ -283,6 +284,7 @@ public interface Cloudlet extends UniquelyIdentifiable, Comparable<Cloudlet>, Cu
     boolean getIfContract();
 
     Cloudlet setDeadline(double Deadline);
+    Cloudlet setSensivityType(int i);
 
     /**
      * Gets the cost ($) running this Cloudlet in a given Datacenter.
