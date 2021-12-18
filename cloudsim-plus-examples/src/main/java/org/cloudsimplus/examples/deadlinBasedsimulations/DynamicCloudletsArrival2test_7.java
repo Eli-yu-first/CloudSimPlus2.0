@@ -1,5 +1,14 @@
 package org.cloudsimplus.examples.deadlinBasedsimulations;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
@@ -12,7 +21,6 @@ import org.cloudbus.cloudsim.distributions.ContinuousDistribution;
 import org.cloudbus.cloudsim.distributions.UniformDistr;
 import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.hosts.HostSimple;
-import org.cloudbus.cloudsim.power.models.PowerModelHostSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.ResourceProvisionerSimple;
 import org.cloudbus.cloudsim.resources.Pe;
@@ -21,19 +29,21 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModel;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelFull;
-import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelStochastic;
-import org.cloudbus.cloudsim.vms.*;
+import org.cloudbus.cloudsim.vms.Vm;
+import org.cloudbus.cloudsim.vms.VmCost;
+import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.listeners.CloudletVmEventInfo;
 import org.cloudsimplus.listeners.EventInfo;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static java.util.Comparator.comparingLong;
-
 /**
+ * 任务个数-违约率
  * An example showing how to delay the submission of cloudlets. Although there is enough resources
  * to run all cloudlets simultaneously, the example delays the creation of each cloudlet inside a
  * VM, simulating the dynamic arrival of cloudlets. For each instantiated cloudlet will be defined a
@@ -44,7 +54,7 @@ import static java.util.Comparator.comparingLong;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class DynamicCloudletsArrival2test_6 {
+public class DynamicCloudletsArrival2test_7 {
   /** Number of Processor Elements (CPU Cores) of each Host. */
   private static final int HOST_PES_NUMBER = 5;
 
@@ -56,20 +66,12 @@ public class DynamicCloudletsArrival2test_6 {
   private static final int CloudletToVM_RoundRobin = 0; // 轮询算法
   private static final int CloudletToVM_CTVOS = 1; // 我们的询算法
   private static final int CloudletToVM_GREEDY = 2; // 贪心算法
-  private static final int CloudletToVM_GREEDY_Hy = 3; // 贪心算法-1
-  private static final int VMS_NUMBER = 5;
-  private static final int CLOUDLETS_NUMBER = 100;
+  private static final int CloudletToVM_GREEDY_Hy = 3; // 贪心算法_对比
   private static File file = new File("D:\\testData\\retult.txt");
-  private static int testTimes = 50;
+  private static int testTimes = 70;
   private static double sumRate = 0.0;
   private static double finishTime = 0.0;
   private static double waittingTime = 0.0;
-  private static double Max_CPU_usage = 0.0;
-  private static double Max_Ram_usage = 0.0;
-  private static double Max_Bw_usage = 0.0;
-    private static double Max_CPU_usage_i = 0.0;
-    private static double Max_Ram_usage_i = 0.0;
-    private static double Max_Bw_usage_i = 0.0;
   private static double[] Cost = new double[5];
   private final ContinuousDistribution random1;
   private final List<Host> hostList;
@@ -83,66 +85,20 @@ public class DynamicCloudletsArrival2test_6 {
   private String SheetName;
   private String ValueName;
   private Cloudlet cloudlet = null;
-
-  /** Default constructor that builds and starts the simulation. */
-  private DynamicCloudletsArrival2test_6() throws IOException {
-    random1 = new UniformDistr();
-    this.ValueName = "DisContract";
-    this.fileName = "result_ContractRate";
-    this.SheetName = "first_sheetName";
-    System.out.println("Starting " + getClass().getSimpleName());
-    simulation = new CloudSim();
-    this.hostList = new ArrayList<>();
-    this.vmList = new ArrayList<>();
-    this.cloudletList = new ArrayList<>();
-    createDatacenter(DATACENTER_NUMBER);
-    this.broker = new DatacenterBrokerSimple(simulation);
-
-    List<Vm> vmList = createVmList(VMS_NUMBER);
-
-    this.vmList.addAll(vmList);
-
-    createAndSubmitCloudletsOnVmList(CLOUDLETS_NUMBER);
-
-    runSimulationAndPrintResults();
-
-    printContractRate(cloudletList);
-    printFinishTime(cloudletList);
-    printWaittingTime(cloudletList);
-    printTotalVmsCost(this.vmList);
-
-    System.out.println("  " + getSheetName() + " algorithm Simulation finished!");
-  }
-
-  /**
-   * Starts the example execution, calling the class constructor\ to build and run the simulation.
-   *
-   * @param args command line parameters
-   */
-  public static void main(String[] args) throws IOException {
-    for (int i = 0; i < testTimes; ++i) {
-      new DynamicCloudletsArrival2test_6();
-    }
-
-    System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
-    System.out.println("平均完成时间为: " + (1.0 * finishTime / testTimes) + " s");
-    System.out.println("平均等待时间为: " + (1.0 * waittingTime / testTimes) + " s");
-    System.out.printf("平均完成成本为: processingCost: %5.2f$ ,memoryCost:%5.2f$ ,storageCost:%5.2f$ ,bwCost:%5.2f$ ,totalCost:%5.2f$ %n", Cost[0] / testTimes, Cost[1] / testTimes, Cost[2] / testTimes, Cost[3] / testTimes, Cost[4] / testTimes);
-    System.out.printf("平均使用率为: Max_CPU_Usage: %5.2f ,Max_Ram_Usage:%5.2f ,Max_Bw_Usage:%5.2f %n", Max_CPU_usage/ testTimes/CLOUDLETS_NUMBER, Max_Ram_usage/ testTimes/CLOUDLETS_NUMBER, Max_Bw_usage/ testTimes/CLOUDLETS_NUMBER);
-  }
+  private static final int VMS_NUMBER = 7;
+  private static final int CLOUDLETS_NUMBER = 350;
 
   private Cloudlet createCloudletsOnVmList() {
     int preid = cloudletList.size();
+    List<Cloudlet> list = new ArrayList<>(CLOUDLETS_NUMBER);
     Cloudlet cloudlet = createCloudlet(preid, broker);
-      System.out.println("C");
-      setCloudlet(cloudlet);
+    setCloudlet(cloudlet);
 
-//    Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
-  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY); // 贪心算法
+  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
+//    Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY); // 贪心算法
 //  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_RoundRobin); // 轮询算法
-//        Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY_Hy); // 贪心算法对比-1
-
-      cloudlet.setVm(vm);
+//  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY_Hy); // 轮询算法
+    cloudlet.setVm(vm);
 
     vm.getCloudletsOnVm().add(cloudlet);
     cloudlet.setSubmissionDelay(submissionDelay);
@@ -150,7 +106,52 @@ public class DynamicCloudletsArrival2test_6 {
 
     return cloudlet;
   }
+    /** Default constructor that builds and starts the simulation. */
+    private DynamicCloudletsArrival2test_7() throws IOException {
+        random1 = new UniformDistr();
+        this.ValueName = "DisContract";
+        this.fileName = "result_ContractRate";
+        this.SheetName = "first_sheetName";
+        System.out.println("Starting " + getClass().getSimpleName());
+        simulation = new CloudSim();
+        this.hostList = new ArrayList<>();
+        this.vmList = new ArrayList<>();
+        this.cloudletList = new ArrayList<>();
+        createDatacenter(DATACENTER_NUMBER);
+        this.broker = new DatacenterBrokerSimple(simulation);
 
+        List<Vm> vmList = createVmList(VMS_NUMBER);
+
+        this.vmList.addAll(vmList);
+
+        createAndSubmitCloudletsOnVmList(CLOUDLETS_NUMBER);
+
+        runSimulationAndPrintResults();
+
+        printContractRate(cloudletList);
+        printFinishTime(cloudletList);
+        printWaittingTime(cloudletList);
+        printTotalVmsCost(this.vmList);
+
+        System.out.println("  " + getSheetName() + " algorithm Simulation finished!");
+    }
+
+    /**
+     * Starts the example execution, calling the class constructor\ to build and run the simulation.
+     *
+     * @param args command line parameters
+     */
+    public static void main(String[] args) throws IOException {
+        for (int i = 0; i < testTimes; ++i) {
+            new DynamicCloudletsArrival2test_7();
+        }
+
+        System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
+        System.out.println("平均完成时间为: " + (1.0 * finishTime / testTimes) + " s");
+        System.out.println("平均等待时间为: " + (1.0 * waittingTime / testTimes) + " s");
+        System.out.printf("平均完成成本为: processingCost: %5.2f$ ,memoryCost:%5.2f$ ,storageCost:%5.2f$ ,bwCost:%5.2f$ ,totalCost:%5.2f$ %n", Cost[0] / testTimes, Cost[1] / testTimes, Cost[2] / testTimes, Cost[3] / testTimes, Cost[4] / testTimes);
+//    dataToExcel(0,5,10,(1.0 * sumRate / testTimes * 100) );
+    }
   public String getSheetName() {
     return this.SheetName;
   }
@@ -209,28 +210,19 @@ public class DynamicCloudletsArrival2test_6 {
    * @return the created cloudlet
    */
   private Cloudlet createCloudlet(int id, DatacenterBroker broker) {
-      long fileSize = random.nextInt(100) + 250;
-      long outputSize = random.nextInt(100) + 250;
-      //    long length = random.nextInt(5000) + 8000; // in number of Million Instructions (MI)
-      long length = (id % 5) * 1000 + 8000; // in number of Million Instructions (MI)
-      int pesNumber = 1;
-      UtilizationModel utilizationModel = new UtilizationModelFull();
-      UtilizationModel cpuUtilizationModel = new UtilizationModelStochastic();
-      UtilizationModel ramUtilizationModel = new UtilizationModelStochastic();
-      UtilizationModel bwUtilizationModel  = new UtilizationModelStochastic();
-
-      return new CloudletSimple(id, length, pesNumber)
-          .setFileSize(fileSize)
-          .setOutputSize(outputSize)
-          .setUtilizationModel(utilizationModel)
-          .setDeadline(random.nextDouble(10) + length / 50)
-          .setSensivityType(random.nextInt(3))
-//          .setUtilizationModelCpu(cpuUtilizationModel)
-//          .setUtilizationModelRam(ramUtilizationModel)
-//          .setUtilizationModelBw(bwUtilizationModel)
-          .addOnUpdateProcessingListener(this::onUpdateCloudletProcessingListener);
+    long fileSize = random.nextInt(100) + 250;
+    long outputSize = random.nextInt(100) + 250;
+    //    long length = random.nextInt(5000) + 8000; // in number of Million Instructions (MI)
+    long length = (id % 5) * 1000 + 8000; // in number of Million Instructions (MI)
+    int pesNumber = 1;
+    UtilizationModel utilizationModel = new UtilizationModelFull();
+    return new CloudletSimple(id, length, pesNumber)
+        .setFileSize(fileSize)
+        .setOutputSize(outputSize)
+        .setUtilizationModel(utilizationModel)
+        .setDeadline(random.nextDouble(10) + length / 50)
+        .setSensivityType(random.nextInt(3));
   }
-
 
   private Vm bindCloudletToVm(
       List<Vm> vmList, Cloudlet cloudlet, DatacenterBroker broker, int type) {
@@ -369,6 +361,7 @@ public class DynamicCloudletsArrival2test_6 {
     }
     return tmp;
   }
+
     private Vm bindCloudletToVm_GREEDY_Hy(Cloudlet cloudlet, List<Vm> vmList) {
         Vm tmp = null;
         double minTime = 100000000000L;
@@ -379,6 +372,17 @@ public class DynamicCloudletsArrival2test_6 {
             }
         }
         return tmp;
+    }
+    private double getPretimeWithTrans(Cloudlet cloudlet, Vm vm) {
+        double preWaitTime = 0.0;
+        List<Cloudlet> CloudletWaitingList = broker.getCloudletWaitingList();
+        for (Cloudlet CL : CloudletWaitingList) {
+            if (CL.getVm() == vm) {
+                preWaitTime +=( CL.getLength()+CL.getFileSize()*45) / vm.getMips();
+            }
+        }
+        double execTime = 1.0 * cloudlet.getLength() / vm.getMips();
+        return preWaitTime + execTime;
     }
   private List<Vm> createVmList(int nums) {
     List<Vm> list = new ArrayList<>(VMS_NUMBER);
@@ -431,10 +435,6 @@ public class DynamicCloudletsArrival2test_6 {
   private void createAndSubmitCloudletsOnVmList(int nums) {
     for (int i = 0; i < nums; i++) {
       SubmitCloudlets(createCloudletsOnVmList());
-        Max_CPU_usage += cloudlet.getUtilizationModelCpu().getUtilization() * 100;
-        Max_Ram_usage += cloudlet.getUtilizationModelRam().getUtilization() * 100;
-        Max_Bw_usage += cloudlet.getUtilizationModelBw().getUtilization() * 100;
-
     }
   }
 
@@ -478,7 +478,6 @@ public class DynamicCloudletsArrival2test_6 {
         prewaittingTime += cloudlet.getWaitingTime();
     }
     waittingTime += prewaittingTime /cloudletList.size();
-
   }
 
   private void printTotalVmsCost(List<Vm> vmList) {
@@ -507,25 +506,23 @@ public class DynamicCloudletsArrival2test_6 {
     double preWaitTime = 0.0;
     List<Cloudlet> CloudletWaitingList = broker.getCloudletWaitingList();
     for (Cloudlet CL : CloudletWaitingList) {
-      if (CL.getVm() == vm) {
+      if (CL.getVm() == this) {
         preWaitTime += CL.getLength() / vm.getMips();
       }
     }
     double execTime = 1.0 * cloudlet.getLength() / vm.getMips();
-
+    System.out.println(
+        "cloudlet_"
+            + cloudlet.getId()
+            + ",preWaitTime = "
+            + preWaitTime
+            + ",execTime="
+            + execTime
+            + ",ALLTime="
+            + (preWaitTime + execTime));
     return preWaitTime + execTime;
   }
-  private double getPretimeWithTrans(Cloudlet cloudlet, Vm vm) {
-        double preWaitTime = 0.0;
-        List<Cloudlet> CloudletWaitingList = broker.getCloudletWaitingList();
-        for (Cloudlet CL : CloudletWaitingList) {
-            if (CL.getVm() == vm) {
-                preWaitTime +=( CL.getLength()+CL.getFileSize()*45) / vm.getMips();
-            }
-        }
-        double execTime = 1.0 * cloudlet.getLength() / vm.getMips();
-        return preWaitTime + execTime;
-    }
+
   private void cloudletFinishListener(final CloudletVmEventInfo info) {
     System.out.printf(
         "\t# %.2f: Requesting creation of new Cloudlet after %s finishes executing.%n",
@@ -570,54 +567,49 @@ public class DynamicCloudletsArrival2test_6 {
       return (int) (vm1.getPredictTime(getCloudlet()) - vm2.getPredictTime(getCloudlet()));
     }
   }
-    private void onUpdateCloudletProcessingListener(CloudletVmEventInfo eventInfo) {
-        Cloudlet c = eventInfo.getCloudlet();
-        double cpuUsage = c.getUtilizationModelCpu().getUtilization(eventInfo.getTime())*100;
-        double ramUsage = c.getUtilizationModelRam().getUtilization(eventInfo.getTime())*100;
-        double bwUsage  = c.getUtilizationModelBw().getUtilization(eventInfo.getTime())*100;
-        System.out.printf(
-            "\t#EventListener: Time %.0f: Updated Cloudlet %d execution inside Vm %d",
-            eventInfo.getTime(), c.getId(), eventInfo.getVm().getId());
-        System.out.printf(
-            "\tCurrent Cloudlet resource usage: CPU %3.0f%%, RAM %3.0f%%, BW %3.0f%%%n",
-            cpuUsage,  ramUsage, bwUsage);
-
-//        if (cpuUsage < 0.99&& cpuUsage > Max_CPU_usage) {Max_CPU_usage = cpuUsage;}
-//        if (ramUsage < 0.96&&ramUsage > Max_Ram_usage) {Max_Ram_usage = ramUsage;}
-//        if (bwUsage < 0.96&&bwUsage > Max_Bw_usage) {Max_Bw_usage = bwUsage ;}
-    }
-    private void printHostsCpuUtilizationAndPowerConsumption() {
-        System.out.println();
-        for (final Host host : hostList) {
-            printHostCpuUtilizationAndPowerConsumption(host);
+//    public static void dataToExcel(int Sheetid,int rowid,int comid, double value) throws IOException {
+//      rowid -= 1;
+//        File file1 = new File("D:\\testData\\" + "picturedata.xls");
+//        if (!file1.exists()) {
+//            file1.createNewFile();
+//        }
+//        FileInputStream inputStream = new FileInputStream(file1);
+//        // 创建Excel文件薄
+//        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+//        // 创建工作表sheeet
+//        HSSFSheet sheet = workbook.getSheetAt(Sheetid);
+//
+//        // 创建第一行
+//        HSSFRow row = sheet.getRow(rowid);
+//        HSSFCell cell = row.getCell(comid);
+//        cell.setCellValue(value);
+//
+//        FileOutputStream stream = FileUtils.openOutputStream(file1);
+//        workbook.write(stream);
+//        stream.close();
+//    }
+    public static void dataToExcel(int Sheetid,int rowid,int comid, double value) throws IOException {
+        rowid -= 1;
+        File file1 = new File("D:\\testData\\" + "picturedata.xlsx");
+        if (!file1.exists()) {
+            System.out.println("不存在");
+            file1.createNewFile();
         }
-        System.out.println();
+        FileInputStream inputStream = new FileInputStream(file1);
+        // 创建Excel文件薄
+//        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+        // 创建工作表sheeet
+        XSSFSheet sheet = workbook.getSheetAt(Sheetid);
+
+        // 创建第一行
+        XSSFRow row = sheet.getRow(rowid);
+        XSSFCell cell = row.getCell(comid);
+        cell.setCellValue(value);
+
+        FileOutputStream stream = FileUtils.openOutputStream(file1);
+        workbook.write(stream);
+        stream.close();
     }
 
-    private void printHostCpuUtilizationAndPowerConsumption(final Host host) {
-        final HostResourceStats cpuStats = host.getCpuUtilizationStats();
-
-        //The total Host's CPU utilization for the time specified by the map key
-        final double utilizationPercentMean = cpuStats.getMean();
-        final double watts = host.getPowerModel().getPower(utilizationPercentMean);
-        System.out.printf(
-            "Host %2d CPU Usage mean: %6.1f%% | Power Consumption mean: %8.0f W%n",
-            host.getId(), utilizationPercentMean * 100, watts);
-    }
-    private void printVmsCpuUtilizationAndPowerConsumption() {
-        vmList.sort(comparingLong(vm -> vm.getHost().getId()));
-        for (Vm vm : vmList) {
-            final var powerModel = vm.getHost().getPowerModel();
-            final double hostStaticPower = powerModel instanceof PowerModelHostSimple powerModelHost ? powerModelHost.getStaticPower() : 0;
-            final double hostStaticPowerByVm = hostStaticPower / vm.getHost().getVmCreatedList().size();
-
-            //VM CPU utilization relative to the host capacity
-            final double vmRelativeCpuUtilization = vm.getCpuUtilizationStats().getMean() / vm.getHost().getVmCreatedList().size();
-            final double vmPower = powerModel.getPower(vmRelativeCpuUtilization) - hostStaticPower + hostStaticPowerByVm; // W
-            final VmResourceStats cpuStats = vm.getCpuUtilizationStats();
-            System.out.printf(
-                "Vm   %2d CPU Usage Mean: %6.1f%% | Power Consumption Mean: %8.0f W%n",
-                vm.getId(), cpuStats.getMean() *100, vmPower);
-        }
-    }
 }
