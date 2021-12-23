@@ -1,10 +1,6 @@
 package org.cloudsimplus.examples.deadlinBasedsimulations;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -43,7 +39,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * 任务个数-违约率
+ * 变化不同的任务数量-违约率-我们的时间敏感算法-改变不同的任务频率
  * An example showing how to delay the submission of cloudlets. Although there is enough resources
  * to run all cloudlets simultaneously, the example delays the creation of each cloudlet inside a
  * VM, simulating the dynamic arrival of cloudlets. For each instantiated cloudlet will be defined a
@@ -54,7 +50,7 @@ import java.util.*;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class DynamicCloudletsArrival2test_7 {
+public class DynamicCloudletsArrival2test_9 {
   /** Number of Processor Elements (CPU Cores) of each Host. */
   private static final int HOST_PES_NUMBER = 5;
 
@@ -63,15 +59,17 @@ public class DynamicCloudletsArrival2test_7 {
 
   private static final int DATACENTER_NUMBER = 2;
   /** Number of Vms to create simultaneously. */
-  private static final int CloudletToVM_RoundRobin = 0; // 轮询算法
-  private static final int CloudletToVM_CTVOS = 1; // 我们的询算法
-  private static final int CloudletToVM_GREEDY = 2; // 贪心算法
+  private static final int CloudletToVM_RoundRobin = 2; // 轮询算法
+  private static final int CloudletToVM_CTVOS = 0; // 我们的询算法
+  private static final int CloudletToVM_GREEDY =1; // 贪心算法
   private static final int CloudletToVM_GREEDY_Hy = 3; // 贪心算法_对比
+  private static int mathordType = 0;
   private static File file = new File("D:\\testData\\retult.txt");
-  private static int testTimes = 70;
+  private static int testTimes = 100;
   private static double sumRate = 0.0;
   private static double finishTime = 0.0;
   private static double waittingTime = 0.0;
+
   private static double[] Cost = new double[5];
   private final ContinuousDistribution random1;
   private final List<Host> hostList;
@@ -86,7 +84,7 @@ public class DynamicCloudletsArrival2test_7 {
   private String ValueName;
   private Cloudlet cloudlet = null;
   private static final int VMS_NUMBER = 7;
-  private static final int CLOUDLETS_NUMBER = 350;
+  private static  int CLOUDLETS_NUMBER = 10;
 
   private Cloudlet createCloudletsOnVmList() {
     int preid = cloudletList.size();
@@ -94,20 +92,21 @@ public class DynamicCloudletsArrival2test_7 {
     Cloudlet cloudlet = createCloudlet(preid, broker);
     setCloudlet(cloudlet);
 
-  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
-//    Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY); // 贪心算法
+  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, mathordType); // 我们的算法
+//  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
+//  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY); // 贪心算法
 //  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_RoundRobin); // 轮询算法
 //  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY_Hy); // 轮询算法
     cloudlet.setVm(vm);
 
     vm.getCloudletsOnVm().add(cloudlet);
     cloudlet.setSubmissionDelay(submissionDelay);
-    submissionDelay += random.nextInt(10);
+    submissionDelay += random.nextDouble(10);//默认是10
 
     return cloudlet;
   }
     /** Default constructor that builds and starts the simulation. */
-    private DynamicCloudletsArrival2test_7() throws IOException {
+    private DynamicCloudletsArrival2test_9() throws IOException {
         random1 = new UniformDistr();
         this.ValueName = "DisContract";
         this.fileName = "result_ContractRate";
@@ -117,6 +116,7 @@ public class DynamicCloudletsArrival2test_7 {
         this.hostList = new ArrayList<>();
         this.vmList = new ArrayList<>();
         this.cloudletList = new ArrayList<>();
+
         createDatacenter(DATACENTER_NUMBER);
         this.broker = new DatacenterBrokerSimple(simulation);
 
@@ -142,15 +142,30 @@ public class DynamicCloudletsArrival2test_7 {
      * @param args command line parameters
      */
     public static void main(String[] args) throws IOException {
-        for (int i = 0; i < testTimes; ++i) {
-            new DynamicCloudletsArrival2test_7();
+        for(int k =0;k<=3;k++){
+            mathordType = k;
+            for(int j =100;j <=1000;j+=100){
+                sumRate = 0;
+                finishTime = 0;
+                waittingTime = 0;
+                Cost = new double[]{0, 0, 0, 0,0};
+                CLOUDLETS_NUMBER = j;
+                for (int i = 0; i < testTimes; ++i) {
+                    new DynamicCloudletsArrival2test_9();
+                }
+
+                System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
+                System.out.println("平均完成时间为: " + (1.0 * finishTime / testTimes) + " s");
+                System.out.println("平均等待时间为: " + (1.0 * waittingTime / testTimes) + " s");
+                System.out.printf("平均完成成本为: processingCost: %5.2f$ ,memoryCost:%5.2f$ ,storageCost:%5.2f$ ,bwCost:%5.2f$ ,totalCost:%5.2f$ %n", Cost[0] / testTimes, Cost[1] / testTimes, Cost[2] / testTimes, Cost[3] / testTimes, Cost[4] / testTimes);
+//                dataToExcel(0,j/100+2,'B',(1.0 * finishTime / testTimes)  );
+                dataToExcel(0,j/100+2,k+1,(1.0 * sumRate / testTimes * 100)   );
+                dataToExcel(1,j/100+2,k+1,(1.0 * finishTime / testTimes)  );
+                dataToExcel(2,j/100+2,k+1,(1.0 * waittingTime / testTimes) );
+                dataToExcel(3,j/100+2,k+1,Cost[4] / testTimes  );
+            }
         }
 
-        System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
-        System.out.println("平均完成时间为: " + (1.0 * finishTime / testTimes) + " s");
-        System.out.println("平均等待时间为: " + (1.0 * waittingTime / testTimes) + " s");
-        System.out.printf("平均完成成本为: processingCost: %5.2f$ ,memoryCost:%5.2f$ ,storageCost:%5.2f$ ,bwCost:%5.2f$ ,totalCost:%5.2f$ %n", Cost[0] / testTimes, Cost[1] / testTimes, Cost[2] / testTimes, Cost[3] / testTimes, Cost[4] / testTimes);
-//    dataToExcel(0,5,10,(1.0 * sumRate / testTimes * 100) );
     }
   public String getSheetName() {
     return this.SheetName;
@@ -216,12 +231,25 @@ public class DynamicCloudletsArrival2test_7 {
     long length = (id % 5) * 1000 + 8000; // in number of Million Instructions (MI)
     int pesNumber = 1;
     UtilizationModel utilizationModel = new UtilizationModelFull();
-    return new CloudletSimple(id, length, pesNumber)
+    Cloudlet cloudlet = new CloudletSimple(id, length, pesNumber)
         .setFileSize(fileSize)
         .setOutputSize(outputSize)
         .setUtilizationModel(utilizationModel)
-        .setDeadline(random.nextDouble(10) + length / 50)
-        .setSensivityType(random.nextInt(3));
+//        .setDeadline(random.nextDouble(10) + length /350+id*1)
+        .setDeadline(random.nextDouble(10) + length /200+(broker.getCloudletSubmittedList().size()/VMS_NUMBER)*5)
+        .setSensivityType(2);
+
+//      if(30 <=cloudlet.getId() % 50 && cloudlet.getId() % 50 < 40){
+//          cloudlet.setSensivityType(1);
+//      }
+//      if(cloudlet.getId() % 50 >= 40){
+//          cloudlet.setSensivityType(0);
+//      }
+//      if(cloudlet.getId() % 50 < 40){
+//          cloudlet.setSensivityType(2);
+//      }
+
+      return cloudlet;
   }
 
   private Vm bindCloudletToVm(List<Vm> vmList, Cloudlet cloudlet, DatacenterBroker broker, int type) {
@@ -377,7 +405,7 @@ public class DynamicCloudletsArrival2test_7 {
         List<Cloudlet> CloudletWaitingList = broker.getCloudletWaitingList();
         for (Cloudlet CL : CloudletWaitingList) {
             if (CL.getVm() == vm) {
-                preWaitTime +=( CL.getLength()+CL.getFileSize()*45) / vm.getMips();
+                preWaitTime +=( CL.getLength()+CL.getFileSize()*90) / vm.getMips();
             }
         }
         double execTime = 1.0 * cloudlet.getLength() / vm.getMips();
@@ -566,30 +594,12 @@ public class DynamicCloudletsArrival2test_7 {
       return (int) (vm1.getPredictTime(getCloudlet()) - vm2.getPredictTime(getCloudlet()));
     }
   }
-//    public static void dataToExcel(int Sheetid,int rowid,int comid, double value) throws IOException {
-//      rowid -= 1;
-//        File file1 = new File("D:\\testData\\" + "picturedata.xls");
-//        if (!file1.exists()) {
-//            file1.createNewFile();
-//        }
-//        FileInputStream inputStream = new FileInputStream(file1);
-//        // 创建Excel文件薄
-//        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-//        // 创建工作表sheeet
-//        HSSFSheet sheet = workbook.getSheetAt(Sheetid);
-//
-//        // 创建第一行
-//        HSSFRow row = sheet.getRow(rowid);
-//        HSSFCell cell = row.getCell(comid);
-//        cell.setCellValue(value);
-//
-//        FileOutputStream stream = FileUtils.openOutputStream(file1);
-//        workbook.write(stream);
-//        stream.close();
-//    }
-    public static void dataToExcel(int Sheetid,int rowid,int comid, double value) throws IOException {
-        rowid -= 1;
-        File file1 = new File("D:\\testData\\" + "picturedata.xlsx");
+
+    public static void dataToExcel(int SheetIndex,int rowIndex,int comChar, double value) throws IOException {
+        rowIndex -= 1;
+        int comid = comChar ;
+//        int comid = comChar-'A';
+        File file1 = new File("D:\\testData\\" + "deadline_constrain.xlsx");
         if (!file1.exists()) {
             System.out.println("不存在");
             file1.createNewFile();
@@ -599,11 +609,18 @@ public class DynamicCloudletsArrival2test_7 {
 //        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
         // 创建工作表sheeet
-        XSSFSheet sheet = workbook.getSheetAt(Sheetid);
+
+        XSSFSheet sheet = workbook.getSheetAt(SheetIndex);
 
         // 创建第一行
-        XSSFRow row = sheet.getRow(rowid);
+        XSSFRow row = sheet.getRow(rowIndex);
+        if(row == null){
+            row = sheet.createRow(rowIndex);
+        }
         XSSFCell cell = row.getCell(comid);
+        if(cell == null){
+            cell = row.createCell(comid);
+        }
         cell.setCellValue(value);
 
         FileOutputStream stream = FileUtils.openOutputStream(file1);

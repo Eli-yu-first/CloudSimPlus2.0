@@ -1,10 +1,6 @@
 package org.cloudsimplus.examples.deadlinBasedsimulations;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -43,7 +39,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * 任务个数-违约率
+ * 任务个数-违约率-我们的时间敏感算法-改变deadline的范围
  * An example showing how to delay the submission of cloudlets. Although there is enough resources
  * to run all cloudlets simultaneously, the example delays the creation of each cloudlet inside a
  * VM, simulating the dynamic arrival of cloudlets. For each instantiated cloudlet will be defined a
@@ -54,7 +50,7 @@ import java.util.*;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class DynamicCloudletsArrival2test_7 {
+public class DynamicCloudletsArrival2test_8 {
   /** Number of Processor Elements (CPU Cores) of each Host. */
   private static final int HOST_PES_NUMBER = 5;
 
@@ -86,7 +82,7 @@ public class DynamicCloudletsArrival2test_7 {
   private String ValueName;
   private Cloudlet cloudlet = null;
   private static final int VMS_NUMBER = 7;
-  private static final int CLOUDLETS_NUMBER = 350;
+  private static final int CLOUDLETS_NUMBER = 300;
 
   private Cloudlet createCloudletsOnVmList() {
     int preid = cloudletList.size();
@@ -95,7 +91,7 @@ public class DynamicCloudletsArrival2test_7 {
     setCloudlet(cloudlet);
 
   Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_CTVOS); // 我们的算法
-//    Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY); // 贪心算法
+//  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY); // 贪心算法
 //  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_RoundRobin); // 轮询算法
 //  Vm vm = bindCloudletToVm(this.vmList, cloudlet, broker, CloudletToVM_GREEDY_Hy); // 轮询算法
     cloudlet.setVm(vm);
@@ -107,7 +103,7 @@ public class DynamicCloudletsArrival2test_7 {
     return cloudlet;
   }
     /** Default constructor that builds and starts the simulation. */
-    private DynamicCloudletsArrival2test_7() throws IOException {
+    private DynamicCloudletsArrival2test_8() throws IOException {
         random1 = new UniformDistr();
         this.ValueName = "DisContract";
         this.fileName = "result_ContractRate";
@@ -143,7 +139,7 @@ public class DynamicCloudletsArrival2test_7 {
      */
     public static void main(String[] args) throws IOException {
         for (int i = 0; i < testTimes; ++i) {
-            new DynamicCloudletsArrival2test_7();
+            new DynamicCloudletsArrival2test_8();
         }
 
         System.out.println("平均违约率为: " + (1.0 * sumRate / testTimes * 100) + "%");
@@ -216,12 +212,25 @@ public class DynamicCloudletsArrival2test_7 {
     long length = (id % 5) * 1000 + 8000; // in number of Million Instructions (MI)
     int pesNumber = 1;
     UtilizationModel utilizationModel = new UtilizationModelFull();
-    return new CloudletSimple(id, length, pesNumber)
+    Cloudlet cloudlet = new CloudletSimple(id, length, pesNumber)
         .setFileSize(fileSize)
         .setOutputSize(outputSize)
         .setUtilizationModel(utilizationModel)
-        .setDeadline(random.nextDouble(10) + length / 50)
-        .setSensivityType(random.nextInt(3));
+//        .setDeadline(random.nextDouble(10) + length /350+id*1.5)
+        .setDeadline(random.nextDouble(10) + length /200+(broker.getCloudletSubmittedList().size()/VMS_NUMBER)*10)
+        .setSensivityType(2);
+
+//      if(30 <=cloudlet.getId() % 50 && cloudlet.getId() % 50 < 40){
+//          cloudlet.setSensivityType(1);
+//      }
+//      if(cloudlet.getId() % 50 >= 40){
+//          cloudlet.setSensivityType(0);
+//      }
+//      if(cloudlet.getId() % 50 < 40){
+//          cloudlet.setSensivityType(2);
+//      }
+
+      return cloudlet;
   }
 
   private Vm bindCloudletToVm(List<Vm> vmList, Cloudlet cloudlet, DatacenterBroker broker, int type) {
@@ -377,7 +386,7 @@ public class DynamicCloudletsArrival2test_7 {
         List<Cloudlet> CloudletWaitingList = broker.getCloudletWaitingList();
         for (Cloudlet CL : CloudletWaitingList) {
             if (CL.getVm() == vm) {
-                preWaitTime +=( CL.getLength()+CL.getFileSize()*45) / vm.getMips();
+                preWaitTime +=( CL.getLength()+CL.getFileSize()*90) / vm.getMips();
             }
         }
         double execTime = 1.0 * cloudlet.getLength() / vm.getMips();
