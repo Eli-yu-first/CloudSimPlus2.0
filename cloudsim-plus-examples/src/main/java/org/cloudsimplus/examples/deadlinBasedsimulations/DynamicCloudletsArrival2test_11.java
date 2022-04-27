@@ -625,7 +625,6 @@ public class DynamicCloudletsArrival2test_11 {
             cell = row.createCell(comid);
         }
         cell.setCellValue(value);
-
         FileOutputStream stream = FileUtils.openOutputStream(file1);
         workbook.write(stream);
         stream.close();

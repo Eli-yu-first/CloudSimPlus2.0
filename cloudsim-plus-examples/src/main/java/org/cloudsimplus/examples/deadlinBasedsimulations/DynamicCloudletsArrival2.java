@@ -588,7 +588,6 @@ public class DynamicCloudletsArrival2 {
               + cl1.getDeadline() * 5000);
     }
   }
-
   // Vm根据PredictTime升序排列
   private class VmComparator implements Comparator<Vm> {
     @Override
